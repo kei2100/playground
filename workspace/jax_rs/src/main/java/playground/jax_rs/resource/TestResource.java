@@ -1,4 +1,4 @@
-package playground.jax_rs.controller;
+package playground.jax_rs.resource;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -15,7 +15,7 @@ import playground.jax_rs.element.GenericElement;
 
 @Controller
 @Path("/test")
-public class TestController {
+public class TestResource {
 
 	@Autowired
 	ApplicationContext context;

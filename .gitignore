@@ -1,2 +1,5 @@
+workspace/.metadata/
+workspace/Servers/
 workspace/*/.settings/
 workspace/*/target/
+*~

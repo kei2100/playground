@@ -36,7 +36,7 @@ public class SemaphoreSample {
 	}
 	
 	/*
-	 *  セマフォを使ってオブジェクトプールのようなものを実装してみる。
+	 *  セマフォを使ってコネクションプールのようなものを実装してみる。
 	 */
 	public static class Pool {
 		private final Semaphore semaphore;

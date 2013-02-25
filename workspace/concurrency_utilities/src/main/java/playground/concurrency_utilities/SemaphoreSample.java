@@ -11,7 +11,7 @@ public class SemaphoreSample {
 
 	public static void main(String[] args) {
 		Pool pool = new Pool(5, 10);
-		
+
 		for (int i = 0; i < 100; i++) {
 			new Thread(new Worker(pool)).start();
 		}
@@ -36,7 +36,7 @@ public class SemaphoreSample {
 	}
 	
 	/*
-	 *  セマフォを使ってコネクションプールのようなものを実装してみる。
+	 *  セマフォを使ってオブジェクトプールのようなものを実装してみる。
 	 */
 	public static class Pool {
 		private final Semaphore semaphore;

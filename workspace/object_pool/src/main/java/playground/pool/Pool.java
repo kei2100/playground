@@ -21,7 +21,7 @@ public class Pool<T> {
 		// initialize idle entries
 		idleEntries = new ConcurrentLinkedQueue<PoolEntry<T>>();
 		for (int i = 0; i < config.getInitialEntries(); i++) {
-			idleEntries.add(createPoolEntry());
+			addIdleEntries(createIdleEntry());
 		}
 		idleEntriesCount = new AtomicInteger(idleEntries.size()); 
 		
@@ -40,32 +40,60 @@ public class Pool<T> {
 			}
 		} catch (InterruptedException e) {
 			throw e;
-		}
-		
-		PoolEntry<T> entry = idleEntries.poll();
+		}		
+		return pollOrCreateIdleEntry();
+	}
+
+	public PoolEntry<T> tryBorrowEntry() {
+		boolean acquireSuccess = borrowingSemaphore.tryAcquire();		
+		if (!acquireSuccess) {
+			return null;	
+		} else {
+			return pollOrCreateIdleEntry();
+		}		
+	}
+
+	public void returnEntry(PoolEntry<T> entry) {
+		addOrInvalidateIdleEntry(entry);		
+		borrowingSemaphore.release();		
+	}
+	
+	private PoolEntry<T> pollOrCreateIdleEntry() {
+		PoolEntry<T> entry = pollIdleEntries();
 		if (entry == null) {
-			entry = createPoolEntry();
+			entry = createIdleEntry();
 		} else {
 			idleEntriesCount.decrementAndGet();
 		}
-		
 		return entry;
 	}
-	
-	public void returnEntry(PoolEntry<T> entry) {
+
+	private void addOrInvalidateIdleEntry(PoolEntry<T> entry) {
 		int idleCount = idleEntriesCount.incrementAndGet();
 		if (idleCount > config.getMaxIdleEntries()) {
 			// not be added to the queue. and decrement count. 
 			idleEntriesCount.decrementAndGet();
+			// TODO invalidate pool entry
 		} else {
-			idleEntries.add(entry);
+			addIdleEntries(entry);
 		}
-		
-		borrowingSemaphore.release();		
 	}
-
-	private PoolEntry<T> createPoolEntry() {
+	
+	private PoolEntry<T> createIdleEntry() {
 		T object = objectFactory.createInstance();
 		return new PoolEntry<T>(this, object);
+	}
+
+	private boolean addIdleEntries(PoolEntry<T> entry) {
+		// TODO idle begin config
+		return idleEntries.add(entry);
+	}
+
+	private PoolEntry<T> pollIdleEntries() {
+		PoolEntry<T> entry = idleEntries.poll();
+		if (entry != null) {
+			// TODO idle end config
+		}
+		return entry;
 	}
 }

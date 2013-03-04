@@ -16,13 +16,14 @@ public class BasicPool<T> implements Pool<T> {
 	private final ConcurrentLinkedQueue<PoolEntry<T>> idleEntries;	
 	private final AtomicInteger idleEntriesCount;
 	
-	protected BasicPool(PoolConfig config, PooledObjectFactory<T> objectFactory) {
+	protected BasicPool(PoolConfig config, PooledObjectFactory<T> objectFactory) 
+			throws CreatePooledObjectException {
 		borrowingSemaphore = new Semaphore(config.getMaxActiveEntries());
 		
 		// initialize idle entries
 		idleEntries = new ConcurrentLinkedQueue<PoolEntry<T>>();
 		for (int i = 0; i < config.getInitialEntries(); i++) {
-			addIdleEntry(createIdleEntry());
+			idleEntries.add(createIdleEntry());
 		}
 		idleEntriesCount = new AtomicInteger(idleEntries.size()); 
 		
@@ -31,7 +32,8 @@ public class BasicPool<T> implements Pool<T> {
 	}
 
 	@Override
-	public PoolEntry<T> borrowEntry() throws InterruptedException, TimeoutException {
+	public PoolEntry<T> borrowEntry()
+			throws InterruptedException, TimeoutException, CreatePooledObjectException {
 		try {
 			boolean acquireSuccess = 
 					borrowingSemaphore.tryAcquire(config.getMaxWaitMillis(), TimeUnit.MILLISECONDS);
@@ -47,7 +49,7 @@ public class BasicPool<T> implements Pool<T> {
 	}
 
 	@Override
-	public PoolEntry<T> tryBorrowEntry() {
+	public PoolEntry<T> tryBorrowEntry() throws CreatePooledObjectException {
 		boolean acquireSuccess = borrowingSemaphore.tryAcquire();		
 		if (!acquireSuccess) {
 			return null;	
@@ -60,12 +62,15 @@ public class BasicPool<T> implements Pool<T> {
 	public void returnEntry(PoolEntry<T> entry) {
 		if (entry == null) throw new NullPointerException();
 		
-		addOrInvalidateIdleEntry(entry);		
-		borrowingSemaphore.release();		
+		try {
+			addOrInvalidateIdleEntry(entry);
+		} finally {
+			borrowingSemaphore.release();		
+		}
 	}
 	
-	private PoolEntry<T> pollOrCreateIdleEntry() {
-		PoolEntry<T> entry = pollIdleEntry();
+	private PoolEntry<T> pollOrCreateIdleEntry() throws CreatePooledObjectException {
+		PoolEntry<T> entry = idleEntries.poll();
 		if (entry == null) {
 			entry = createIdleEntry();
 		} else {
@@ -77,29 +82,17 @@ public class BasicPool<T> implements Pool<T> {
 	private void addOrInvalidateIdleEntry(PoolEntry<T> entry) {
 		int idleCount = idleEntriesCount.incrementAndGet();
 		if (idleCount > config.getMaxIdleEntries()) {
-			// not be added to the queue. and decrement count. 
+			// not be added to the queue. decrement count and invalidate entry. 
 			idleEntriesCount.decrementAndGet();
-			// TODO invalidate pool entry
+			entry.invalidate();
 		} else {
-			addIdleEntry(entry);
+			idleEntries.add(entry);
 		}
 	}
 	
-	private PoolEntry<T> createIdleEntry() {
+	private PoolEntry<T> createIdleEntry() throws CreatePooledObjectException {
+		// TODO refactor
 		T object = objectFactory.createInstance();
-		return new PoolEntry<T>(this, object);
-	}
-
-	private boolean addIdleEntry(PoolEntry<T> entry) {
-		// TODO idle begin config
-		return idleEntries.add(entry);
-	}
-
-	private PoolEntry<T> pollIdleEntry() {
-		PoolEntry<T> entry = idleEntries.poll();
-		if (entry != null) {
-			// TODO idle end config
-		}
-		return entry;
+		return new BasicPoolEntry<T>(object);
 	}
 }

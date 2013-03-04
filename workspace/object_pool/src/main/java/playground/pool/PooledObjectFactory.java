@@ -2,5 +2,5 @@ package playground.pool;
 
 public interface PooledObjectFactory<T> {
 
-	T createInstance();
+	T createInstance() throws CreatePooledObjectException;
 }

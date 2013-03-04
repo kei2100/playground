@@ -21,7 +21,9 @@ public class BasicPoolTemplate<T> implements Pool<T>{
 	}
 	
 	@Override
-	public PoolEntry<T> borrowEntry() throws InterruptedException, TimeoutException {
+	public PoolEntry<T> borrowEntry() 
+			throws InterruptedException, TimeoutException, CreatePooledObjectException {
+		
 		PoolEntry<T> entry = delegate.borrowEntry();
 
 		for (PoolListener<T> listener : listeners) {
@@ -31,7 +33,8 @@ public class BasicPoolTemplate<T> implements Pool<T>{
 	}
 
 	@Override
-	public PoolEntry<T> tryBorrowEntry() {
+	public PoolEntry<T> tryBorrowEntry() throws CreatePooledObjectException {
+		
 		PoolEntry<T> entry = delegate.tryBorrowEntry();
 		
 		if (entry != null) {
@@ -43,7 +46,8 @@ public class BasicPoolTemplate<T> implements Pool<T>{
 	}
 
 	@Override
-	public void returnEntry(PoolEntry<T> entry) throws NullPointerException{
+	public void returnEntry(PoolEntry<T> entry) throws NullPointerException {
+		
 		if (entry == null) throw new NullPointerException();
 
 		for (PoolListener<T> listener : listeners) {
@@ -51,9 +55,5 @@ public class BasicPoolTemplate<T> implements Pool<T>{
 		}
 
 		delegate.returnEntry(entry);
-
-		for (PoolListener<T> listener : listeners) {
-			listener.afterReturnSuccess(entry);
-		}
 	}
 }

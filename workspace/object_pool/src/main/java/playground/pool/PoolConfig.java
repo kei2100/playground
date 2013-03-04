@@ -24,6 +24,4 @@ public class PoolConfig {
 	public int getMaxWaitMillis() {
 		return maxWaitMillis;
 	}
-	
-	
 }

@@ -91,7 +91,7 @@ public class BasicPool<T> implements Pool<T> {
 	}
 	
 	private PoolEntry<T> createIdleEntry() throws CreatePooledObjectException {
-		// TODO refactor
+		// TODO refactor BasicPoolEntryに依存しちゃっている
 		T object = objectFactory.createInstance();
 		return new BasicPoolEntry<T>(object);
 	}

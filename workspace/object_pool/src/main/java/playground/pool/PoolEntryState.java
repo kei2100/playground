@@ -1,15 +1,16 @@
 package playground.pool;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 public class PoolEntryState {
 	
-	private long lastValidatedAt;
+	private AtomicLong lastValidatedAt;
 	
 	public long getLastValidatedAt() {
-		return lastValidatedAt;
+		return lastValidatedAt.longValue();
 	}
 	
-	public void setLastValidatedAt(long lastValidatedAt) {
-		this.lastValidatedAt = lastValidatedAt;
+	public void compareAndSetLastValidatedAt(long expect, long update) {
+		lastValidatedAt.compareAndSet(expect, update);
 	}
-	
 }

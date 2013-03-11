@@ -29,6 +29,7 @@ public class ValidatePoolEntryListener<T> extends AbstractPoolListener<T> {
 		PoolEntryState state = entry.getState();
 		long lastValidatedAt = state.getLastValidatedAt();
 		
+		// TODO refacor -> config.isValidateWithInterval
 		if (validateWithInterval()) {
 			if (!intervalElapses(lastValidatedAt)) {
 				return;

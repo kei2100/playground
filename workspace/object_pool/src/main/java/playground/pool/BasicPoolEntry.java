@@ -4,9 +4,12 @@ public class BasicPoolEntry<T> implements PoolEntry<T> {
 	
 	private final T object;
 	private final PoolEntryState state; 
+	private final PooledObjectValidator<T> validator;
 	
-	protected BasicPoolEntry(T object) {
+	protected BasicPoolEntry(T object, PooledObjectValidator<T> validator) {
 		this.object = object;
+		this.validator = validator;
+		
 		this.state = new PoolEntryState();
 	}
 		
@@ -23,12 +26,11 @@ public class BasicPoolEntry<T> implements PoolEntry<T> {
 	// このエントリを有効にする
 	@Override
 	public boolean validate() {
-		// TODO 自動生成されたメソッド・スタブ
-		return false;
+		return validator.validate(object);
 	}
 	
 	@Override
 	public void invalidate() {
-		// TODO 自動生成されたメソッド・スタブ
+		validator.invalidate(object);
 	}
 }

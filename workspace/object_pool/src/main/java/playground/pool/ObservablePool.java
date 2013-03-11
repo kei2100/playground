@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-public class BasicPoolTemplate<T> implements Pool<T>{
+public class ObservablePool<T> implements Pool<T>{
+	
 	private Pool<T> delegate;
 	private List<PoolListener<T>> listeners = new ArrayList<PoolListener<T>>();
 	
-	protected BasicPoolTemplate(Pool<T> pool) {
+	protected ObservablePool(Pool<T> pool) {
 		this.delegate = pool;
 	}
 	
@@ -22,7 +23,7 @@ public class BasicPoolTemplate<T> implements Pool<T>{
 	
 	@Override
 	public PoolEntry<T> borrowEntry() 
-			throws InterruptedException, TimeoutException, CreatePooledObjectException {
+			throws InterruptedException, TimeoutException, CreatePoolEntryException {
 		
 		PoolEntry<T> entry = delegate.borrowEntry();
 
@@ -33,9 +34,9 @@ public class BasicPoolTemplate<T> implements Pool<T>{
 	}
 
 	@Override
-	public PoolEntry<T> tryBorrowEntry() throws CreatePooledObjectException {
+	public PoolEntry<T> tryBorrowIdleEntry() throws CreatePoolEntryException {
 		
-		PoolEntry<T> entry = delegate.tryBorrowEntry();
+		PoolEntry<T> entry = delegate.tryBorrowIdleEntry();
 		
 		if (entry != null) {
 			for (PoolListener<T> listener : listeners) {

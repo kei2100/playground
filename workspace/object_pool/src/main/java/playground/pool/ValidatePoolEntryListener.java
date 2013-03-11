@@ -29,8 +29,7 @@ public class ValidatePoolEntryListener<T> extends AbstractPoolListener<T> {
 		PoolEntryState state = entry.getState();
 		long lastValidatedAt = state.getLastValidatedAt();
 		
-		// TODO refacor -> config.isValidateWithInterval
-		if (validateWithInterval()) {
+		if (config.isTestWithInterval()) {
 			if (!intervalElapses(lastValidatedAt)) {
 				return;
 			}
@@ -45,14 +44,10 @@ public class ValidatePoolEntryListener<T> extends AbstractPoolListener<T> {
 		}
 	}
 
-	private boolean validateWithInterval() {
-		return config.getTestIntervalSecond() > 0;
-	}
-
 	private boolean intervalElapses(long lastValidatedAt) {
 		int testIntervalSecond = config.getTestIntervalSecond();
 		long now = System.currentTimeMillis();
 		
-		return testIntervalSecond < (now - lastValidatedAt);
+		return testIntervalSecond < ((now - lastValidatedAt) / 1000);
 	}
 }

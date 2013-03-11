@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class PoolEntryState {
 	
-	private AtomicLong lastValidatedAt;
+	private AtomicLong lastValidatedAt = new AtomicLong(0);
 	
 	public long getLastValidatedAt() {
 		return lastValidatedAt.longValue();

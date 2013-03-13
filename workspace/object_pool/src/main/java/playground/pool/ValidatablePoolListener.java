@@ -1,11 +1,11 @@
 package playground.pool;
 
 
-public class ValidatePoolEntryListener<T> extends AbstractPoolListener<T> {
+public class ValidatablePoolListener<T> implements PoolListener<T> {
 
 	private final ValidationConfig config;
 
-	protected ValidatePoolEntryListener(ValidationConfig config) {
+	protected ValidatablePoolListener(ValidationConfig config) {
 		this.config = config;
 	}
 
@@ -44,6 +44,7 @@ public class ValidatePoolEntryListener<T> extends AbstractPoolListener<T> {
 		}
 	}
 
+	
 	private boolean intervalElapses(long lastValidatedAt) {
 		int testIntervalSecond = config.getTestIntervalSecond();
 		long now = System.currentTimeMillis();

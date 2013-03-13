@@ -1,6 +1,6 @@
 package playground.pool;
 
-public interface PoolListener<T> {
+interface PoolListener<T> {
 	
 	void afterBorrowSuccess(PoolEntry<T> entry); 
 	

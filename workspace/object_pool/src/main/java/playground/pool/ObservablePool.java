@@ -5,12 +5,13 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 public class ObservablePool<T> implements Pool<T>{
+
+	private final Pool<T> delegate;
 	
-	private Pool<T> delegate;
 	private List<PoolListener<T>> listeners = new ArrayList<PoolListener<T>>();
 	
-	protected ObservablePool(Pool<T> pool) {
-		this.delegate = pool;
+	protected ObservablePool(Pool<T> delegate) {
+		this.delegate = delegate;
 	}
 	
 	public void setListeners(List<PoolListener<T>> listeners) {
@@ -56,5 +57,5 @@ public class ObservablePool<T> implements Pool<T>{
 		}
 
 		delegate.returnEntry(entry);
-	}
+	}	
 }

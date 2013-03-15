@@ -26,11 +26,14 @@ public class BasicPoolEntry<T> implements PoolEntry<T> {
 	// このエントリを有効にする
 	@Override
 	public boolean validate() {
-		return validator.validate(object);
+		 boolean validateSuccessful = validator.validate(object);
+		 state.setValid(validateSuccessful);
+		 return validateSuccessful;
 	}
 	
 	@Override
 	public void invalidate() {
+		state.setValid(false);
 		validator.invalidate(object);
 	}
 }

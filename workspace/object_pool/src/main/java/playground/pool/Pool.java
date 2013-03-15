@@ -8,8 +8,7 @@ public interface Pool<T> {
 			throws InterruptedException, TimeoutException, CreatePoolEntryException;
 	
 	// TODO interfaceとして必要か？
-	PoolEntry<T> tryBorrowIdleEntry() 
-			throws CreatePoolEntryException;
+	PoolEntry<T> tryBorrowIdleEntry();
 
 	void returnEntry(PoolEntry<T> entry) 
 			throws NullPointerException;

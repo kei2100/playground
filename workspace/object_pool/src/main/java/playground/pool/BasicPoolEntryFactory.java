@@ -11,11 +11,11 @@ public class BasicPoolEntryFactory<T> implements PoolEntryFactory<T> {
 	}
 	
 	@Override
-	public PoolEntry<T> createPoolEntry() throws CreatePoolEntryException{
+	public PoolEntry<T> createPoolEntry() throws CreatePoolEntryException {
 		try {
 			T object = objectFactory.createInstance();
 			return new BasicPoolEntry<T>(object, validator);
-		} catch (CreatePooledObjectException e) {
+		} catch (Exception e) {
 			throw new CreatePoolEntryException(e);
 		}
 	}

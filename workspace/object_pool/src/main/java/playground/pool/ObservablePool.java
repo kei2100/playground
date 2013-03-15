@@ -35,7 +35,7 @@ public class ObservablePool<T> implements Pool<T>{
 	}
 
 	@Override
-	public PoolEntry<T> tryBorrowIdleEntry() throws CreatePoolEntryException {
+	public PoolEntry<T> tryBorrowIdleEntry() {
 		
 		PoolEntry<T> entry = delegate.tryBorrowIdleEntry();
 		

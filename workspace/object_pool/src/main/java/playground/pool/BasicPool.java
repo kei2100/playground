@@ -45,12 +45,13 @@ public class BasicPool<T> implements Pool<T> {
 			}
 		} catch (InterruptedException e) {
 			throw e;
-		}		
+		}
+		
 		return pollIdleOrCreateEntry();
 	}
 
 	@Override
-	public PoolEntry<T> tryBorrowIdleEntry() throws CreatePoolEntryException {
+	public PoolEntry<T> tryBorrowIdleEntry() {
 		boolean acquireSuccess = borrowingSemaphore.tryAcquire();		
 		if (!acquireSuccess) {
 			return null;	
@@ -60,7 +61,7 @@ public class BasicPool<T> implements Pool<T> {
 	}
 
 	@Override
-	public void returnEntry(PoolEntry<T> entry) {
+	public void returnEntry(PoolEntry<T> entry) throws NullPointerException {
 		if (entry == null) throw new NullPointerException();
 		
 		try {
@@ -87,6 +88,11 @@ public class BasicPool<T> implements Pool<T> {
 	}
 
 	private void addOrInvalidateIdleEntry(PoolEntry<T> entry) {
+		if (isAlreadyInvalid(entry)) {
+			// do nothing.
+			return;
+		}
+		
 		int idleCount = idleEntriesCount.incrementAndGet();
 		if (idleCount > config.getMaxIdleEntries()) {
 			// not be added to the queue. decrement count and invalidate entry. 
@@ -97,6 +103,14 @@ public class BasicPool<T> implements Pool<T> {
 		}
 	}
 	
+	private boolean isAlreadyInvalid(PoolEntry<T> entry) {
+		if (entry.getState().isValid()) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
 	private PoolEntry<T> createIdleEntry() throws CreatePoolEntryException {
 		return entryFactory.createPoolEntry();
 	}

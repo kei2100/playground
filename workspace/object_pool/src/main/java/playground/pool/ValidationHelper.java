@@ -11,7 +11,7 @@ public class ValidationHelper {
 				return true;
 			}
 		}
-
+		
 		boolean validateSuccessful = entry.validate();
 		if (validateSuccessful) {
 			long now = System.currentTimeMillis();
@@ -22,13 +22,11 @@ public class ValidationHelper {
 			return false;
 		}
 	}
-
 	
-	private static boolean intervalElapses(ValidationConfig config, long lastValidatedAt) {
-		int testIntervalSecond = config.getTestIntervalSecond();
+	static boolean intervalElapses(ValidationConfig config, long lastValidatedAt) {				
+		long testIntervalMillis = config.getTestIntervalMillis();
 		long now = System.currentTimeMillis();
 		
-		return testIntervalSecond < ((now - lastValidatedAt) / 1000);
+		return testIntervalMillis < (now - lastValidatedAt);
 	}
-
 }

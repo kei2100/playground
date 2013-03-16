@@ -6,20 +6,23 @@ public class ValidatablePool<T> implements Pool<T> {
 
 	private final Pool<T> delegate;
 	private final ValidationConfig config;
+	private ValidationThread<T> validationThread;
 	
 	protected ValidatablePool(Pool<T> pool, ValidationConfig config) {
-		this.delegate = pool;
+		delegate = pool;
 		this.config = config;
 				
-		// TODO true, config
-//		if (true) {
-//			ScheduledExecutorService ses = 
-//					Executors.newScheduledThreadPool(2);
-//			ses.
-//			
-//		}
+		if (config.isTestInBackground()) {
+			validationThread = new ValidationThread<T>(delegate, config);
+			validationThread.scheduleBackgroundValidation();
+		}		
 	}
-
+	
+	@Override
+	public PoolConfig getPoolConfig() {
+		return delegate.getPoolConfig();
+	}
+	
 	@Override
 	public PoolEntry<T> borrowEntry() 
 			throws InterruptedException, TimeoutException, CreatePoolEntryException {
@@ -76,21 +79,5 @@ public class ValidatablePool<T> implements Pool<T> {
 			ValidationHelper.validate(config, entry);
 		}
 		delegate.returnEntry(entry);
-	}
-	
-	
-	private class ValidateTask implements Runnable {
-		@Override
-		public void run() {
-			PoolEntry<T> idleEntry = null;
-			while ((idleEntry = delegate.tryBorrowIdleEntry()) != null) {
-//				boolean validateSuccessful = ValidationHelper.validate(config, idleEntry);
-//				
-//				if (!validateSuccessful) {
-//					// TODO invalidateしてpoolに返す。
-//				}
-			}
-		}
-	}
-
+	}	
 }

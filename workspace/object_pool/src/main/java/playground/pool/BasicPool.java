@@ -32,6 +32,11 @@ public class BasicPool<T> implements Pool<T> {
 	}
 
 	@Override
+	public PoolConfig getPoolConfig() {
+		return config;
+	}
+	
+	@Override
 	public PoolEntry<T> borrowEntry()
 			throws InterruptedException, TimeoutException, CreatePoolEntryException {
 		try {

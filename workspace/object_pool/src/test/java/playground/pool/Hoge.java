@@ -1,5 +1,7 @@
 package playground.pool;
 
+import java.util.concurrent.TimeUnit;
+
 public class Hoge {
 	public static void main(String[] args) throws Exception {
 		
@@ -8,16 +10,24 @@ public class Hoge {
 						new TestObjectFactory(), new TestObjectValidator()));
 
 		ValidationConfig config = new ValidationConfig();
-		config.setTestOnBorrow(true);
-		config.setTestIntervalSecond(1);
+		config.setTestOnBorrow(false);
+		config.setTestIntervalMillis(3000);
+		config.setTestIntervalMillisInBackground(1000);
+		config.setTestInBackgroundThreads(5);
 		
-		ValidatablePool<String> pool = new ValidatablePool<String>(poolbase, config);
-
+		ValidatablePool<String> pool = new ValidatablePool<String>(poolbase, config);		
 		
 		while(true) {
 			PoolEntry<String> entry = pool.borrowEntry();
-			pool.returnEntry(entry); 
+			TimeUnit.SECONDS.sleep(1);
+			pool.returnEntry(entry);
+			TimeUnit.SECONDS.sleep(1);
 		}
+		
+//		while(true) {
+//			PoolEntry<String> entry = pool.borrowEntry();
+//			pool.returnEntry(entry); 
+//		}
 	}
 	
 	public static class TestObjectFactory implements PooledObjectFactory<String> {

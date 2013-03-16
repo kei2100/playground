@@ -23,6 +23,11 @@ public class ObservablePool<T> implements Pool<T>{
 	}
 	
 	@Override
+	public PoolConfig getPoolConfig() {
+		return delegate.getPoolConfig();
+	}
+	
+	@Override
 	public PoolEntry<T> borrowEntry() 
 			throws InterruptedException, TimeoutException, CreatePoolEntryException {
 		

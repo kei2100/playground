@@ -4,7 +4,7 @@ public class PoolConfig {
 	private int initialEntries = 5;
 	private int maxActiveEntries = 10;
 	private int maxIdleEntries = 5;
-	private int maxWaitMillisOnBorrow = 3000;
+	private long maxWaitMillisOnBorrow = 3000;
 	
 	public PoolConfig() {
 	}
@@ -30,10 +30,10 @@ public class PoolConfig {
 		this.maxIdleEntries = maxIdleEntries;
 	}
 
-	public int getMaxWaitMillisOnBorrow() {
+	public long getMaxWaitMillisOnBorrow() {
 		return maxWaitMillisOnBorrow;
 	}
-	public void setMaxWaitMillisOnBorrow(int maxWaitMillisOnBorrow) {
+	public void setMaxWaitMillisOnBorrow(long maxWaitMillisOnBorrow) {
 		this.maxWaitMillisOnBorrow = maxWaitMillisOnBorrow;
 	}
 }

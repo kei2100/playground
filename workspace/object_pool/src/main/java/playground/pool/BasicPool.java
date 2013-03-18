@@ -13,7 +13,8 @@ public class BasicPool<T> implements Pool<T> {
 	
 	private final Semaphore borrowingSemaphore;
 
-	private final ConcurrentLinkedQueue<PoolEntry<T>> idleEntries;	
+	private final ConcurrentLinkedQueue<PoolEntry<T>> idleEntries;
+	private final ConcurrentLinkedQueue<PoolEntry<T>> idleEntriesToBeInvalidate;
 	private final AtomicInteger idleEntriesCount;
 	
 	protected BasicPool(PoolConfig config, PoolEntryFactory<T> entryFactory)
@@ -28,7 +29,9 @@ public class BasicPool<T> implements Pool<T> {
 		for (int i = 0; i < config.getInitialEntries(); i++) {
 			idleEntries.add(createIdleEntry());
 		}
-		idleEntriesCount = new AtomicInteger(idleEntries.size()); 
+		idleEntriesCount = new AtomicInteger(idleEntries.size());
+		
+		idleEntriesToBeInvalidate = new ConcurrentLinkedQueue<PoolEntry<T>>();
 	}
 
 	@Override

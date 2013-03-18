@@ -10,12 +10,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class ValidationThread<T> {
+public class ValidatablePoolThread<T> {
 
 	private final Pool<T> pool;
 	private final ValidationConfig config;
 	
-	protected ValidationThread(Pool<T> pool, ValidationConfig config) {
+	protected ValidatablePoolThread(Pool<T> pool, ValidationConfig config) {
 		this.pool = pool;
 		this.config = config;
 	}

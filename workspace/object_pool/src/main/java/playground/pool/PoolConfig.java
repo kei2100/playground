@@ -3,8 +3,14 @@ package playground.pool;
 public class PoolConfig {
 	private int initialEntries = 5;
 	private int maxActiveEntries = 10;
-	private int maxIdleEntries = 5;
 	private long maxWaitMillisOnBorrow = 3000;
+
+	private int maxIdleEntries = 5;
+	private int minIdleEntries = 2;
+	private int invalidateThreads = 1;
+	private long invalidateInitialDelayMillis = 1000;
+	private int ensureThreads = 1;
+	private long ensureInitialDelayMillis = 1000;
 	
 	public PoolConfig() {
 	}
@@ -23,6 +29,13 @@ public class PoolConfig {
 		this.maxActiveEntries = maxActiveEntries;
 	}
 
+	public long getMaxWaitMillisOnBorrow() {
+		return maxWaitMillisOnBorrow;
+	}
+	public void setMaxWaitMillisOnBorrow(long maxWaitMillisOnBorrow) {
+		this.maxWaitMillisOnBorrow = maxWaitMillisOnBorrow;
+	}
+	
 	public int getMaxIdleEntries() {
 		return maxIdleEntries;
 	}
@@ -30,10 +43,38 @@ public class PoolConfig {
 		this.maxIdleEntries = maxIdleEntries;
 	}
 
-	public long getMaxWaitMillisOnBorrow() {
-		return maxWaitMillisOnBorrow;
+	public int getMinIdleEntries() {
+		return minIdleEntries;
 	}
-	public void setMaxWaitMillisOnBorrow(long maxWaitMillisOnBorrow) {
-		this.maxWaitMillisOnBorrow = maxWaitMillisOnBorrow;
+	public void setMinIdleEntries(int minIdleEntries) {
+		this.minIdleEntries = minIdleEntries;
+	}
+
+	public int getInvalidateThreads() {
+		return invalidateThreads;
+	}
+	public void setInvalidateThreads(int invalidateThreads) {
+		this.invalidateThreads = invalidateThreads;
+	}
+
+	public long getInvalidateInitialDelayMillis() {
+		return invalidateInitialDelayMillis;
+	}
+	public void setInvalidateInitialDelayMillis(long invalidateInitialDelayMillis) {
+		this.invalidateInitialDelayMillis = invalidateInitialDelayMillis;
+	}
+
+	public int getEnsureThreads() {
+		return ensureThreads;
+	}
+	public void setEnsureThreads(int ensureThreads) {
+		this.ensureThreads = ensureThreads;
+	}
+
+	public long getEnsureInitialDelayMillis() {
+		return ensureInitialDelayMillis;
+	}
+	public void setEnsureInitialDelayMillis(long ensureInitialDelayMillis) {
+		this.ensureInitialDelayMillis = ensureInitialDelayMillis;
 	}
 }

@@ -10,22 +10,25 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+// TODO Executorの生成を抑える
 public class ValidatablePoolThread<T> {
 
-	private final Pool<T> pool;
+	private final BasicPool<T> pool;
 	private final ValidationConfig config;
 	
-	protected ValidatablePoolThread(Pool<T> pool, ValidationConfig config) {
+	protected ValidatablePoolThread(BasicPool<T> pool, ValidationConfig config) {
 		this.pool = pool;
 		this.config = config;
 	}
 	
 	protected void scheduleBackgroundValidation() {
 		final ScheduledExecutorService ses = Executors.newScheduledThreadPool(1);
+		ValidateTaskBootstrap bootstrap = new ValidateTaskBootstrap();
+		
 		ses.scheduleWithFixedDelay(
-				new ValidateTaskBootstrap(), 
+				bootstrap, 
 				config.getTestInBackgroundInitialDelayMillis(),
-				config.getTestIntervalMillisInBackground(), 
+				config.getTestInBackgroundIntervalMillis(), 
 				TimeUnit.MILLISECONDS);
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
@@ -70,7 +73,7 @@ public class ValidatablePoolThread<T> {
 		@Override
 		public Void call() {
 			PoolEntry<T> idleEntry = null;
-			while ((idleEntry = pool.tryBorrowIdleEntry()) != null) {				
+			while ((idleEntry = pool.pollIdleEntry()) != null) {				
 				if (isAlreadyValidated(idleEntry)) {
 					pool.returnEntry(idleEntry);
 					break;

@@ -3,16 +3,13 @@ package playground.pool;
 public class ValidationConfig {
 	
 	private boolean testOnBorrow = true;
-	
 	private boolean testOnReturn = false;
-		
 	private long testIntervalMillis = 0;
-
-	private long testIntervalMillisInBackground = 0;
 	
 	private int testInBackgroundThreads = 1;
-	
 	private long testInBackgroundInitialDelayMillis = 3000; 
+	private long testInBackgroundIntervalMillis = 1000;
+	
 	
 	public ValidationConfig() {
 	}
@@ -22,7 +19,7 @@ public class ValidationConfig {
 	}
 	
 	public boolean isTestInBackground() {
-		return testIntervalMillisInBackground > 0;
+		return testInBackgroundIntervalMillis > 0;
 	}
 	
 	public boolean isTestOnBorrow() {
@@ -46,13 +43,6 @@ public class ValidationConfig {
 		this.testIntervalMillis = testIntervalMillis;
 	}
 
-	public long getTestIntervalMillisInBackground() {
-		return testIntervalMillisInBackground;
-	}
-	public void setTestIntervalMillisInBackground(long testIntervalMillisInBackground) {
-		this.testIntervalMillisInBackground = testIntervalMillisInBackground;
-	}
-	
 	public int getTestInBackgroundThreads() {
 		return testInBackgroundThreads;
 	}
@@ -65,5 +55,12 @@ public class ValidationConfig {
 	}
 	public void setTestInBackgroundInitialDelayMillis(long testInBackgroundInitialDelayMillis) {
 		this.testInBackgroundInitialDelayMillis = testInBackgroundInitialDelayMillis;
+	}
+
+	public long getTestInBackgroundIntervalMillis() {
+		return testInBackgroundIntervalMillis;
+	}
+	public void setTestInBackgroundIntervalMillis(long testInBackgroundIntervalMillis) {
+		this.testInBackgroundIntervalMillis = testInBackgroundIntervalMillis;
 	}
 }

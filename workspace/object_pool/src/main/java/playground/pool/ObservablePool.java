@@ -40,19 +40,6 @@ public class ObservablePool<T> implements Pool<T>{
 	}
 
 	@Override
-	public PoolEntry<T> tryBorrowIdleEntry() {
-		
-		PoolEntry<T> entry = delegate.tryBorrowIdleEntry();
-		
-		if (entry != null) {
-			for (PoolListener<T> listener : listeners) {
-				listener.afterBorrowSuccess(entry);
-			}
-		}
-		return entry;
-	}
-
-	@Override
 	public void returnEntry(PoolEntry<T> entry) throws NullPointerException {
 		
 		if (entry == null) throw new NullPointerException();

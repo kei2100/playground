@@ -6,6 +6,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import playground.pool.util.Pair;
+
 public class BasicPool<T> implements Pool<T> {
 
 	private final PoolConfig config ;
@@ -14,7 +16,6 @@ public class BasicPool<T> implements Pool<T> {
 	private final Semaphore borrowingSemaphore;
 
 	private final ConcurrentLinkedQueue<PoolEntry<T>> idleEntries;
-	private final ConcurrentLinkedQueue<PoolEntry<T>> idleEntriesToBeInvalidate;
 	private final AtomicInteger idleEntriesCount;
 	
 	protected BasicPool(PoolConfig config, PoolEntryFactory<T> entryFactory)
@@ -30,8 +31,6 @@ public class BasicPool<T> implements Pool<T> {
 			idleEntries.add(createIdleEntry());
 		}
 		idleEntriesCount = new AtomicInteger(idleEntries.size());
-		
-		idleEntriesToBeInvalidate = new ConcurrentLinkedQueue<PoolEntry<T>>();
 	}
 
 	@Override
@@ -59,21 +58,11 @@ public class BasicPool<T> implements Pool<T> {
 	}
 
 	@Override
-	public PoolEntry<T> tryBorrowIdleEntry() {
-		boolean acquireSuccess = borrowingSemaphore.tryAcquire();		
-		if (!acquireSuccess) {
-			return null;	
-		} else {
-			return pollIdleEntry();
-		}		
-	}
-
-	@Override
 	public void returnEntry(PoolEntry<T> entry) throws NullPointerException {
 		if (entry == null) throw new NullPointerException();
 		
 		try {
-			addOrInvalidateIdleEntry(entry);
+			addIdleEntry(entry);
 		} finally {
 			borrowingSemaphore.release();		
 		}
@@ -87,28 +76,34 @@ public class BasicPool<T> implements Pool<T> {
 		return entry;
 	}
 	
-	private PoolEntry<T> pollIdleEntry() {
-		PoolEntry<T> entry = idleEntries.poll();
-		if (entry != null) {
-			idleEntriesCount.decrementAndGet();			
-		}
-		return entry;
+	protected PoolEntry<T> pollIdleEntry() {
+		return pollIdleEntryWithCount().getRight();
 	}
+	
+	protected Pair<Integer, PoolEntry<T>> pollIdleEntryWithCount() {
+		PoolEntry<T> entry = idleEntries.poll();
 
-	private void addOrInvalidateIdleEntry(PoolEntry<T> entry) {
+		if (entry != null) {
+			// first poll entries, and then decrement a counter. 
+			// this is fixed processing order
+			int decremented = idleEntriesCount.decrementAndGet();
+			return new Pair<Integer, PoolEntry<T>>(decremented, entry);
+			
+		} else {
+			return new Pair<Integer, PoolEntry<T>>(0, null);
+		}
+	}
+	
+	private void addIdleEntry(PoolEntry<T> entry) {
 		if (isAlreadyInvalid(entry)) {
 			// do nothing.
 			return;
 		}
 		
-		int idleCount = idleEntriesCount.incrementAndGet();
-		if (idleCount > config.getMaxIdleEntries()) {
-			// not be added to the queue. decrement count and invalidate entry. 
-			idleEntriesCount.decrementAndGet();
-			entry.invalidate();
-		} else {
-			idleEntries.add(entry);
-		}
+		// first increment  a counter, and then add entries. 
+		// this is fixed processing order
+		idleEntriesCount.incrementAndGet();
+		idleEntries.add(entry);
 	}
 	
 	private boolean isAlreadyInvalid(PoolEntry<T> entry) {

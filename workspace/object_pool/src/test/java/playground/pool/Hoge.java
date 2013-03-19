@@ -12,16 +12,17 @@ public class Hoge {
 		ValidationConfig config = new ValidationConfig();
 		config.setTestOnBorrow(false);
 //		config.setTestIntervalMillis(3000);
-//		config.setTestInBackgroundIntervalMillis(1000);
+		config.setTestInBackgroundIntervalMillis(1000);
 		config.setTestInBackgroundThreads(5);
 		
 		ValidatablePool<String> pool = new ValidatablePool<String>(poolbase, config);		
 		
-//		pool.returnEntry(new BasicPoolEntry<String>("created", new TestObjectValidator()));
-//		pool.returnEntry(new BasicPoolEntry<String>("created", new TestObjectValidator()));
-//		pool.returnEntry(new BasicPoolEntry<String>("created", new TestObjectValidator()));
-//		pool.returnEntry(new BasicPoolEntry<String>("created", new TestObjectValidator()));
-//		pool.returnEntry(new BasicPoolEntry<String>("created", new TestObjectValidator()));
+		pool.returnEntry(new BasicPoolEntry<String>("created", new TestObjectValidator()));
+		pool.returnEntry(new BasicPoolEntry<String>("created", new TestObjectValidator()));
+		pool.returnEntry(new BasicPoolEntry<String>("created", new TestObjectValidator()));
+		pool.returnEntry(new BasicPoolEntry<String>("created", new TestObjectValidator()));
+		pool.returnEntry(new BasicPoolEntry<String>("created", new TestObjectValidator()));
+		
 			
 		
 //		while(true) {

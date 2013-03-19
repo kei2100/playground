@@ -72,18 +72,29 @@ public class ValidatablePoolThread<T> {
 
 		@Override
 		public Void call() {
+			// validate idleEntries.
 			PoolEntry<T> idleEntry = null;
 			while ((idleEntry = pool.pollIdleEntry()) != null) {				
 				if (isAlreadyValidated(idleEntry)) {
 					pool.returnEntry(idleEntry);
 					break;
 				}
-				
-				ValidationHelper.validate(config, idleEntry);
-				pool.returnEntry(idleEntry);
+				validateAndReturn(idleEntry);
 			}
+			
+			// validate idleEntriesToBeInvalidate.
+			PoolEntry<T> idleEntryToBeInvalidate = null;
+			while ((idleEntryToBeInvalidate = pool.pollIdleEntryToBeInvalidate()) != null) {				
+				if (isAlreadyValidated(idleEntryToBeInvalidate)) {
+					pool.returnEntry(idleEntryToBeInvalidate);
+					break;
+				}
+				validateAndReturn(idleEntryToBeInvalidate);
+			}
+						
 			return null;
 		}
+
 
 		private boolean isAlreadyValidated(PoolEntry<T> idleEntry) {
 			int hashCode = idleEntry.hashCode();
@@ -91,6 +102,11 @@ public class ValidatablePoolThread<T> {
 			
 			Object result = alreadyValidatedCheckMap.putIfAbsent(hashCode, dummy);
 			return (result != null); 
+		}
+
+		private void validateAndReturn(PoolEntry<T> idleEntry) {
+			ValidationHelper.validate(config, idleEntry);
+			pool.returnEntry(idleEntry);
 		}
 	}
 

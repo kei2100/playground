@@ -55,6 +55,8 @@ public class ValidatablePoolThread<T> {
 			
 			ExecutorService es = Executors.newFixedThreadPool(tasks.size());
 			try {
+				// TODO delete sysout
+				System.out.println("----------");
 				es.invokeAll(tasks);
 			} catch (InterruptedException e) {
 				es.shutdownNow();
@@ -74,24 +76,15 @@ public class ValidatablePoolThread<T> {
 		public Void call() {
 			// validate idleEntries.
 			PoolEntry<T> idleEntry = null;
-			while ((idleEntry = pool.pollIdleEntry()) != null) {				
+			IdleEntriesQueue<T> idleEntries = pool.getIdleEntries();
+			
+			while ((idleEntry = idleEntries.poll()) != null) {				
 				if (isAlreadyValidated(idleEntry)) {
 					pool.returnEntry(idleEntry);
 					break;
 				}
 				validateAndReturn(idleEntry);
 			}
-			
-			// validate idleEntriesToBeInvalidate.
-			PoolEntry<T> idleEntryToBeInvalidate = null;
-			while ((idleEntryToBeInvalidate = pool.pollIdleEntryToBeInvalidate()) != null) {				
-				if (isAlreadyValidated(idleEntryToBeInvalidate)) {
-					pool.returnEntry(idleEntryToBeInvalidate);
-					break;
-				}
-				validateAndReturn(idleEntryToBeInvalidate);
-			}
-						
 			return null;
 		}
 

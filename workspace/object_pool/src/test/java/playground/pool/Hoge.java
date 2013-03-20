@@ -13,7 +13,7 @@ public class Hoge {
 		config.setTestOnBorrow(false);
 //		config.setTestIntervalMillis(3000);
 		config.setTestInBackgroundIntervalMillis(1000);
-		config.setTestInBackgroundThreads(5);
+		config.setTestInBackgroundThreads(2);
 		
 		ValidatablePool<String> pool = new ValidatablePool<String>(poolbase, config);		
 		

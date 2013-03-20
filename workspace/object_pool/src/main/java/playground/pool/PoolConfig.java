@@ -4,13 +4,14 @@ public class PoolConfig {
 	private int initialEntries = 5;
 	private int maxActiveEntries = 10;
 	private long maxWaitMillisOnBorrow = 3000;
-
+	
 	private int maxIdleEntries = 5;
-	private int minIdleEntries = 2;
 	private int invalidateThreads = 1;
-	private long invalidateInitialDelayMillis = 1000;
-	private int ensureThreads = 1;
-	private long ensureInitialDelayMillis = 1000;
+	private long invalidateIntervalMillis = 1000;
+
+	private int minIdleEntries = 2;
+	private int refillThreads = 1;
+	private long refillIntervalMillis = 1000;
 	
 	public PoolConfig() {
 	}
@@ -57,24 +58,24 @@ public class PoolConfig {
 		this.invalidateThreads = invalidateThreads;
 	}
 
-	public long getInvalidateInitialDelayMillis() {
-		return invalidateInitialDelayMillis;
+	public long getInvalidateIntervalMillis() {
+		return invalidateIntervalMillis;
 	}
-	public void setInvalidateInitialDelayMillis(long invalidateInitialDelayMillis) {
-		this.invalidateInitialDelayMillis = invalidateInitialDelayMillis;
+	public void setInvalidateIntervalMillis(long invalidateIntervalMillis) {
+		this.invalidateIntervalMillis = invalidateIntervalMillis;
 	}
-
-	public int getEnsureThreads() {
-		return ensureThreads;
+		
+	public int getRefillThreads() {
+		return refillThreads;
 	}
-	public void setEnsureThreads(int ensureThreads) {
-		this.ensureThreads = ensureThreads;
+	public void setRefillThreads(int refillThreads) {
+		this.refillThreads = refillThreads;
 	}
-
-	public long getEnsureInitialDelayMillis() {
-		return ensureInitialDelayMillis;
+	
+	public long getRefillIntervalMillis() {
+		return refillIntervalMillis;
 	}
-	public void setEnsureInitialDelayMillis(long ensureInitialDelayMillis) {
-		this.ensureInitialDelayMillis = ensureInitialDelayMillis;
+	public void setRefillIntervalMillis(long refillIntervalMillis) {
+		this.refillIntervalMillis = refillIntervalMillis;
 	}
 }

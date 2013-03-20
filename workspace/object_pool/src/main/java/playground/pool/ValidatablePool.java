@@ -14,7 +14,7 @@ public class ValidatablePool<T> implements Pool<T> {
 				
 		if (config.isTestInBackground()) {
 			validationThread = new ValidatablePoolThread<T>(delegate, config);
-			validationThread.scheduleBackgroundValidation();
+			validationThread.scheduleBackgroundValidate();
 		}		
 	}
 	

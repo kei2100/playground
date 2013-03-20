@@ -13,15 +13,15 @@ public class BasicPool<T> implements Pool<T> {
 	
 	private final IdleEntriesQueue<T> idleEntries;
 	
-	protected BasicPool(PoolConfig config, PoolEntryFactory<T> entryFactory)
+	protected BasicPool(PoolConfig config, PoolEntryFactory<T> entryFactory, IdleEntriesQueue<T> idleEntries)
 	throws CreatePoolEntryException {
 		this.config = config;
 		this.entryFactory = entryFactory;
-
+		this.idleEntries = idleEntries;
+		
 		borrowingSemaphore = new Semaphore(config.getMaxActiveEntries());
 		
 		// initialize idle entries
-		idleEntries = new IdleEntriesQueue<T>(config);
 		for (int i = 0; i < config.getInitialEntries(); i++) {
 			idleEntries.add(createIdleEntry());
 		}

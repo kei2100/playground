@@ -9,7 +9,8 @@ public class ValidationConfig {
 	private int testInBackgroundThreads = 1;
 	private long testInBackgroundInitialDelayMillis = 3000; 
 	private long testInBackgroundIntervalMillis = 1000;
-	
+
+	// TODO maxage
 	
 	public ValidationConfig() {
 	}

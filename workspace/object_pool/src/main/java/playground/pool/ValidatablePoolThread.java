@@ -1,7 +1,5 @@
 package playground.pool;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -10,22 +8,31 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-// TODO Executorの生成を抑える
+import playground.pool.util.NameableThreadFactory;
+
 public class ValidatablePoolThread<T> {
 
 	private final BasicPool<T> pool;
 	private final ValidationConfig config;
+	
+	private ScheduledExecutorService bootstrapTaskExecutor;	
+	private ExecutorService taskExecutor;
 	
 	protected ValidatablePoolThread(BasicPool<T> pool, ValidationConfig config) {
 		this.pool = pool;
 		this.config = config;
 	}
 	
-	protected void scheduleBackgroundValidation() {
-		final ScheduledExecutorService ses = Executors.newScheduledThreadPool(1);
-		ValidateTaskBootstrap bootstrap = new ValidateTaskBootstrap();
+	protected void scheduleBackgroundValidate() {
+		bootstrapTaskExecutor = 
+				Executors.newScheduledThreadPool(
+						1, new NameableThreadFactory(ValidateTaskBootstrap.class.getSimpleName()));
+		taskExecutor = 
+				Executors.newFixedThreadPool(
+						config.getTestInBackgroundThreads(), new NameableThreadFactory(ValidateTask.class.getSimpleName()));
 		
-		ses.scheduleWithFixedDelay(
+		ValidateTaskBootstrap bootstrap = new ValidateTaskBootstrap();
+		bootstrapTaskExecutor.scheduleWithFixedDelay(
 				bootstrap, 
 				config.getTestInBackgroundInitialDelayMillis(),
 				config.getTestInBackgroundIntervalMillis(), 
@@ -34,34 +41,26 @@ public class ValidatablePoolThread<T> {
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 			@Override
 			public void run() {
-				ses.shutdownNow();
+				taskExecutor.shutdownNow();
+				bootstrapTaskExecutor.shutdownNow();
 			}
 		}));
 	}	
 	
 	private class ValidateTaskBootstrap implements Runnable {
 		@Override
-		public void run() {			
-			int threadPoolSize = config.getTestInBackgroundThreads();			
+		public void run() {
 			int maxIdleEntries = pool.getPoolConfig().getMaxIdleEntries();
-
-			List<ValidateTask> tasks = new ArrayList<ValidateTask>(threadPoolSize);
 			ConcurrentMap<Integer, Object> alreadyValidatedCheckMap = 
 					new ConcurrentHashMap<Integer, Object>(maxIdleEntries);
 			
+			// TODO delete sysout
+			System.out.println("----------");
+			int threadPoolSize = config.getTestInBackgroundThreads();
 			for (int i = 0; i < threadPoolSize; i++) {
-				tasks.add(new ValidateTask(alreadyValidatedCheckMap));
-			}
-			
-			ExecutorService es = Executors.newFixedThreadPool(tasks.size());
-			try {
-				// TODO delete sysout
-				System.out.println("----------");
-				es.invokeAll(tasks);
-			} catch (InterruptedException e) {
-				es.shutdownNow();
-			}
-			es.shutdown();
+				ValidateTask task = new ValidateTask(alreadyValidatedCheckMap);
+				taskExecutor.submit(task);
+			}			
 		}
 	}
 	

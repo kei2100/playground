@@ -4,27 +4,35 @@ import java.util.concurrent.TimeUnit;
 
 public class Hoge {
 	public static void main(String[] args) throws Exception {
+		PoolConfig poolConfig = new PoolConfig();
+		poolConfig.setInvalidateThreads(4);
+		poolConfig.setInvalidateIntervalMillis(3000);
 		
-		BasicPool<String> poolbase = new BasicPool<String>(new PoolConfig(),
-				new BasicPoolEntryFactory<String>(
-						new TestObjectFactory(), new TestObjectValidator()));
+		BasicPoolEntryFactory<String> entryFactory = new BasicPoolEntryFactory<String>(
+				new TestObjectFactory(), new TestObjectValidator());
+		
+		BasicPool<String> poolbase = new BasicPool<String>(
+				poolConfig,
+				entryFactory,
+//				new BasicIdleEntriesQueue<String>(poolConfig)
+				new AsyncAdjustIdleEntriesQueue<String>(poolConfig, entryFactory)
+				);
 
 		ValidationConfig config = new ValidationConfig();
 		config.setTestOnBorrow(false);
 //		config.setTestIntervalMillis(3000);
 		config.setTestInBackgroundIntervalMillis(1000);
-		config.setTestInBackgroundThreads(2);
+		config.setTestInBackgroundThreads(4);
 		
 		ValidatablePool<String> pool = new ValidatablePool<String>(poolbase, config);		
 		
-		pool.returnEntry(new BasicPoolEntry<String>("created", new TestObjectValidator()));
-		pool.returnEntry(new BasicPoolEntry<String>("created", new TestObjectValidator()));
-		pool.returnEntry(new BasicPoolEntry<String>("created", new TestObjectValidator()));
-		pool.returnEntry(new BasicPoolEntry<String>("created", new TestObjectValidator()));
-		pool.returnEntry(new BasicPoolEntry<String>("created", new TestObjectValidator()));
-		
+		while(true) {
+			TimeUnit.SECONDS.sleep(2);
 			
-		
+			pool.returnEntry(new BasicPoolEntry<String>("created", new TestObjectValidator()));
+			pool.returnEntry(new BasicPoolEntry<String>("created", new TestObjectValidator()));
+			pool.returnEntry(new BasicPoolEntry<String>("created", new TestObjectValidator()));
+		}
 //		while(true) {
 //			PoolEntry<String> entry = pool.borrowEntry();
 //			pool.returnEntry(entry);

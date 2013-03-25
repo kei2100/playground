@@ -1,4 +1,4 @@
-package playground.pool;
+package playground.pool.asyncadjust;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +13,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import playground.pool.IdleEntriesQueue;
+import playground.pool.PoolConfig;
+import playground.pool.PoolEntry;
+import playground.pool.PoolEntryFactory;
 import playground.pool.util.NameableThreadFactory;
 
 public class AsyncAdjustIdleEntriesQueue<T> implements IdleEntriesQueue<T> {
@@ -28,7 +32,7 @@ public class AsyncAdjustIdleEntriesQueue<T> implements IdleEntriesQueue<T> {
 	
 	private final RefillIdleEntryThread refillIdleEntryThread;
 	
-	protected AsyncAdjustIdleEntriesQueue(PoolConfig config, PoolEntryFactory<T> entryFactory) {
+	public AsyncAdjustIdleEntriesQueue(PoolConfig config, PoolEntryFactory<T> entryFactory) {
 		this.config = config;
 		this.entryFactory = entryFactory;
 		

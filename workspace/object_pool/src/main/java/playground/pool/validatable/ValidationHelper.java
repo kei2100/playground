@@ -1,4 +1,7 @@
-package playground.pool;
+package playground.pool.validatable;
+
+import playground.pool.PoolEntry;
+import playground.pool.PoolEntryState;
 
 public class ValidationHelper {
 

@@ -1,4 +1,4 @@
-package playground.pool;
+package playground.pool.validatable;
 
 public class ValidationConfig {
 	

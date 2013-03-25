@@ -1,7 +1,12 @@
-package playground.pool;
+package playground.pool.basic;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import playground.pool.IdleEntriesQueue;
+import playground.pool.PoolConfig;
+import playground.pool.PoolEntry;
+
 
 public class BasicIdleEntriesQueue<T> implements IdleEntriesQueue<T>{
 	

@@ -1,6 +1,13 @@
-package playground.pool;
+package playground.pool.validatable;
 
 import java.util.concurrent.TimeoutException;
+
+import playground.pool.CreatePoolEntryException;
+import playground.pool.Pool;
+import playground.pool.PoolConfig;
+import playground.pool.PoolEntry;
+import playground.pool.basic.BasicPool;
+
 
 public class ValidatablePool<T> implements Pool<T> {
 
@@ -8,7 +15,7 @@ public class ValidatablePool<T> implements Pool<T> {
 	private final ValidationConfig config;
 	private ValidatablePoolThread<T> validationThread;
 	
-	protected ValidatablePool(BasicPool<T> pool, ValidationConfig config) {
+	public ValidatablePool(BasicPool<T> pool, ValidationConfig config) {
 		delegate = pool;
 		this.config = config;
 				
@@ -26,9 +33,40 @@ public class ValidatablePool<T> implements Pool<T> {
 	@Override
 	public PoolEntry<T> borrowEntry() 
 			throws InterruptedException, TimeoutException, CreatePoolEntryException {
+
+		return borrowEntry(true);
+	}
+	
+	@Override
+	public PoolEntry<T> borrowEntry(boolean createNew) 
+			throws InterruptedException, TimeoutException, CreatePoolEntryException {
 		
-		PoolEntry<T> entry = delegate.borrowEntry();
+		PoolEntry<T> entry = delegate.borrowEntry(createNew);
+
+		if (entry == null) {
+			return null;
+		}
 		
+		return afterBorrowEntry(entry);
+	}
+	
+	@Override
+	public PoolEntry<T> tryBorrowEntry() throws CreatePoolEntryException {
+		return tryBorrowEntry(true);
+	}
+	
+	@Override
+	public PoolEntry<T> tryBorrowEntry(boolean createNew) throws CreatePoolEntryException {
+		PoolEntry<T> entry = delegate.tryBorrowEntry(createNew);
+		
+		if (entry == null) {
+			return null;
+		}
+		
+		return afterBorrowEntry(entry);
+	}
+
+	protected PoolEntry<T> afterBorrowEntry(PoolEntry<T> entry) throws CreatePoolEntryException {
 		if (!config.isTestOnBorrow()) {
 			return entry;
 		}

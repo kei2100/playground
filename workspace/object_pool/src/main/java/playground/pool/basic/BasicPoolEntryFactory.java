@@ -1,4 +1,10 @@
-package playground.pool;
+package playground.pool.basic;
+
+import playground.pool.PoolEntry;
+import playground.pool.PoolEntryFactory;
+import playground.pool.PooledObjectFactory;
+import playground.pool.PooledObjectValidator;
+
 
 public class BasicPoolEntryFactory<T> implements PoolEntryFactory<T> {
 
@@ -11,12 +17,14 @@ public class BasicPoolEntryFactory<T> implements PoolEntryFactory<T> {
 	}
 	
 	@Override
-	public PoolEntry<T> createPoolEntry() throws CreatePoolEntryException {
+	public PoolEntry<T> createPoolEntry() throws Exception {
+		T object = null;
 		try {
-			T object = objectFactory.createInstance();
+			object = objectFactory.createInstance();
 			return new BasicPoolEntry<T>(object, validator);
 		} catch (Exception e) {
-			throw new CreatePoolEntryException(e);
+			validator.invalidate(object);
+			throw e;
 		}
 	}
 }

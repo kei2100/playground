@@ -1,4 +1,9 @@
-package playground.pool;
+package playground.pool.basic;
+
+import playground.pool.PoolEntry;
+import playground.pool.PoolEntryState;
+import playground.pool.PooledObjectValidator;
+
 
 public class BasicPoolEntry<T> implements PoolEntry<T> {
 	

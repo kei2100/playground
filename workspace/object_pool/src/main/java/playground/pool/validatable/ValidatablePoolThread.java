@@ -1,4 +1,4 @@
-package playground.pool;
+package playground.pool.validatable;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -8,6 +8,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import playground.pool.IdleEntriesQueue;
+import playground.pool.PoolEntry;
+import playground.pool.basic.BasicPool;
 import playground.pool.util.NameableThreadFactory;
 
 public class ValidatablePoolThread<T> {
@@ -75,6 +78,8 @@ public class ValidatablePoolThread<T> {
 		public Void call() {
 			// validate idleEntries.
 			PoolEntry<T> idleEntry = null;
+			
+			// TODO tryBorrow
 			IdleEntriesQueue<T> idleEntries = pool.getIdleEntries();
 			
 			while ((idleEntry = idleEntries.poll()) != null) {				

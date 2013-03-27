@@ -1,5 +1,6 @@
 package playground.pool;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -9,20 +10,20 @@ public class PoolEntryState {
 	
 	private AtomicLong lastValidatedAt = new AtomicLong(0);
 	
-	private volatile boolean valid = true;
+	private AtomicBoolean valid = new AtomicBoolean(true);
 	
 	public long getLastValidatedAt() {
 		return lastValidatedAt.longValue();
 	}
 	
-	public void compareAndSetLastValidatedAt(long expect, long update) {
-		lastValidatedAt.compareAndSet(expect, update);
+	public boolean compareAndSetLastValidatedAt(long expect, long update) {
+		return lastValidatedAt.compareAndSet(expect, update);
 	}
 	
 	public boolean isValid() {
-		return valid;
+		return valid.get();
 	}
-	public void setValid(boolean valid) {
-		this.valid = valid;
+	public boolean compareAndSetValid(boolean expect, boolean update) {
+		return valid.compareAndSet(expect, update);
 	}
 }

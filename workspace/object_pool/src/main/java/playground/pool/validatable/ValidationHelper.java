@@ -15,14 +15,36 @@ public class ValidationHelper {
 			}
 		}
 		
-		boolean validateSuccessful = entry.validate();
+		boolean validateSuccessful = innerValidate(entry);
 		if (validateSuccessful) {
 			long now = System.currentTimeMillis();
 			state.compareAndSetLastValidatedAt(lastValidatedAt, now);
 			return true;
 		} else {
-			entry.invalidate();
+			innerInvalidate(entry);
 			return false;
+		}
+	}
+
+
+	private static <T> boolean innerValidate(PoolEntry<T> entry) {
+		try {
+			boolean validateSuccessful = entry.validate();
+			return validateSuccessful;
+		} catch (Exception e) {
+			// TODO 自動生成された catch ブロック
+			e.printStackTrace();
+			innerInvalidate(entry);
+			return false;
+		}
+	}
+	
+	private static <T> void innerInvalidate(PoolEntry<T> entry) {
+		try {
+			entry.invalidate();
+		} catch (Exception e) {
+			// TODO 自動生成された catch ブロック
+			e.printStackTrace();
 		}
 	}
 	

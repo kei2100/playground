@@ -14,14 +14,14 @@ public interface Pool<T> {
 	PoolConfig getPoolConfig();
 	
 	PoolEntry<T> borrowEntry() 
-			throws InterruptedException, TimeoutException, CreatePoolEntryException;
+			throws InterruptedException, TimeoutException, PoolException;
 	
 	PoolEntry<T> borrowEntry(boolean createNew) 
-			throws InterruptedException, TimeoutException, CreatePoolEntryException;
+			throws InterruptedException, TimeoutException, PoolException;
 	
-	PoolEntry<T> tryBorrowEntry() throws CreatePoolEntryException;
+	PoolEntry<T> tryBorrowEntry() throws PoolException;
 
-	PoolEntry<T> tryBorrowEntry(boolean createNew) throws CreatePoolEntryException;
+	PoolEntry<T> tryBorrowEntry(boolean createNew) throws PoolException;
 	
 	void returnEntry(PoolEntry<T> entry) 
 			throws NullPointerException;

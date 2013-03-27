@@ -30,7 +30,7 @@ public class AsyncAdjustIdleEntriesQueue<T> implements IdleEntriesQueue<T> {
 	private final InvalidateIdleEntryThread invalidateIdleEntryThread;
 	private final ConcurrentLinkedQueue<PoolEntry<T>> idleEntriesToBeInvalidate;
 	
-	private final RefillIdleEntryThread refillIdleEntryThread;
+	private final EnsureIdleEntryThread ensureIdleEntryThread;
 	
 	public AsyncAdjustIdleEntriesQueue(PoolConfig config, PoolEntryFactory<T> entryFactory) {
 		this.config = config;
@@ -44,7 +44,7 @@ public class AsyncAdjustIdleEntriesQueue<T> implements IdleEntriesQueue<T> {
 		invalidateIdleEntryThread = new InvalidateIdleEntryThread();
 		// TODO not background
 		invalidateIdleEntryThread.startBackgroundInvalidate();
-		refillIdleEntryThread = new RefillIdleEntryThread();
+		ensureIdleEntryThread = new EnsureIdleEntryThread();
 		// TODO not background
 	}
 	
@@ -67,9 +67,9 @@ public class AsyncAdjustIdleEntriesQueue<T> implements IdleEntriesQueue<T> {
 			
 			if (decremented < minIdleEntriesCount) {
 				// TODO refactor
-				boolean isScheduled = refillIdleEntryThread.getAndSetScheduled(true);
+				boolean isScheduled = ensureIdleEntryThread.getAndSetScheduled(true);
 				if (!isScheduled) {
-					refillIdleEntryThread.scheduluBackgroundRefill();
+					ensureIdleEntryThread.scheduluBackgroundEnsure();
 				}
 			}
 		}
@@ -78,7 +78,6 @@ public class AsyncAdjustIdleEntriesQueue<T> implements IdleEntriesQueue<T> {
 	}
 	
 	
-	// TODO refill impl addEntryAndGetIdleCount
 	@Override
 	// TODO not background
 	public void add(PoolEntry<T> entry) {
@@ -139,47 +138,47 @@ public class AsyncAdjustIdleEntriesQueue<T> implements IdleEntriesQueue<T> {
 		}
 	}
 	
-	private class RefillIdleEntryThread {
+	private class EnsureIdleEntryThread {
 		
-		private ScheduledExecutorService refillTaskBootstrapExecutor;
-		private ExecutorService refillTaskExecutor;
+		private ScheduledExecutorService ensureTaskBootstrapExecutor;
+		private ExecutorService ensureTaskExecutor;
 		private AtomicBoolean scheduled = new AtomicBoolean(false);
 		
 		public boolean getAndSetScheduled(boolean scheduled) {
 			return this.scheduled.getAndSet(scheduled);
 		}
 		
-		protected void scheduluBackgroundRefill() {
-			refillTaskBootstrapExecutor = 
+		protected void scheduluBackgroundEnsure() {
+			ensureTaskBootstrapExecutor = 
 					Executors.newScheduledThreadPool(
-							1, new NameableThreadFactory(RefillTaskBootstrap.class.getSimpleName()));
+							1, new NameableThreadFactory(EnsureTaskBootstrap.class.getSimpleName()));
 
-			refillTaskExecutor = 
+			ensureTaskExecutor = 
 					Executors.newFixedThreadPool(
-							config.getRefillThreads(), new NameableThreadFactory(RefillTask.class.getSimpleName()));
+							config.getEnsureThreads(), new NameableThreadFactory(EnsureTask.class.getSimpleName()));
 			
-			RefillTaskBootstrap bootstrap = new RefillTaskBootstrap();
+			EnsureTaskBootstrap bootstrap = new EnsureTaskBootstrap();
 			long initialDelay = 0;
-			refillTaskBootstrapExecutor.scheduleWithFixedDelay(
-					bootstrap, initialDelay, config.getRefillIntervalMillis(), TimeUnit.MILLISECONDS);
+			ensureTaskBootstrapExecutor.scheduleWithFixedDelay(
+					bootstrap, initialDelay, config.getEnsureIntervalMillis(), TimeUnit.MILLISECONDS);
 			
 			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 				@Override
 				public void run() {
-					refillTaskExecutor.shutdownNow();
-					refillTaskBootstrapExecutor.shutdownNow();
+					ensureTaskExecutor.shutdownNow();
+					ensureTaskBootstrapExecutor.shutdownNow();
 				}
 			}));
 		}
 		
-		private class RefillTaskBootstrap implements Runnable {
+		private class EnsureTaskBootstrap implements Runnable {
 			@Override
 			public void run() {
-				int refillIdleEntriesCount = config.getMinIdleEntries() - idleEntriesCount.get();
+				int ensureCount = config.getMinIdleEntries() - idleEntriesCount.get();
 				List<Future<Integer>> futures = new ArrayList<Future<Integer>>();
 				
-				for (int i = 0; i < refillIdleEntriesCount; i++) {
-					Future<Integer> future = refillTaskExecutor.submit(new RefillTask());
+				for (int i = 0; i < ensureCount; i++) {
+					Future<Integer> future = ensureTaskExecutor.submit(new EnsureTask());
 					futures.add(future);
 				}
 				
@@ -215,7 +214,7 @@ public class AsyncAdjustIdleEntriesQueue<T> implements IdleEntriesQueue<T> {
 			}
 		}
 		
-		private class RefillTask implements Callable<Integer> {
+		private class EnsureTask implements Callable<Integer> {
 			@Override
 			public Integer call() throws Exception {
 				PoolEntry<T> entry = entryFactory.createPoolEntry();

@@ -28,17 +28,24 @@ public class BasicPoolEntry<T> implements PoolEntry<T> {
 		return state;
 	}
 	
-	// このエントリを有効にする
+	// このエントリの有効性を確認する
 	@Override
-	public boolean validate() {
-		 boolean validateSuccessful = validator.validate(object);
-		 state.setValid(validateSuccessful);
-		 return validateSuccessful;
+	public boolean validate() throws Exception {
+		boolean expectValid = state.isValid();
+		boolean updateValid = validator.validate(object);
+		boolean updateSuccessful = state.compareAndSetValid(expectValid, updateValid);
+		
+		return (updateValid && updateSuccessful);
 	}
 	
 	@Override
-	public void invalidate() {
-		state.setValid(false);
-		validator.invalidate(object);
+	public void invalidate() throws Exception {
+		boolean expectValid = state.isValid();
+		boolean updateSuccessful = state.compareAndSetValid(expectValid, false);
+		
+		// invalidate only once
+		if (expectValid && updateSuccessful) {
+			validator.invalidate(object);
+		}
 	}
 }

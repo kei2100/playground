@@ -4,7 +4,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import playground.pool.CreatePoolEntryException;
+import playground.pool.PoolException;
 import playground.pool.IdleEntriesQueue;
 import playground.pool.Pool;
 import playground.pool.PoolConfig;
@@ -21,7 +21,7 @@ public class BasicPool<T> implements Pool<T> {
 	private final Semaphore borrowingSemaphore;
 		
 	public BasicPool(PoolConfig config, PoolEntryFactory<T> entryFactory, IdleEntriesQueue<T> idleEntries)
-	throws CreatePoolEntryException {
+	throws PoolException {
 		this.config = config;
 		this.entryFactory = entryFactory;
 		this.idleEntries = idleEntries;
@@ -52,14 +52,14 @@ public class BasicPool<T> implements Pool<T> {
 	
 	@Override
 	public PoolEntry<T> borrowEntry() 
-			throws InterruptedException, TimeoutException, CreatePoolEntryException {
+			throws InterruptedException, TimeoutException, PoolException {
 
 		return borrowEntry(true);
 	}
 	
 	@Override
 	public PoolEntry<T> borrowEntry(boolean createNew)
-			throws InterruptedException, TimeoutException, CreatePoolEntryException {
+			throws InterruptedException, TimeoutException, PoolException {
 		try {
 			boolean acquireSuccess = 
 					borrowingSemaphore.tryAcquire(
@@ -77,17 +77,17 @@ public class BasicPool<T> implements Pool<T> {
 			return innerBorrowEntry(createNew);
 		} catch (Exception e) {
 			borrowingSemaphore.release();
-			throw new CreatePoolEntryException(e);
+			throw new PoolException(e);
 		}
 	}
 	
 	@Override
-	public PoolEntry<T> tryBorrowEntry() throws CreatePoolEntryException {
+	public PoolEntry<T> tryBorrowEntry() throws PoolException {
 		return tryBorrowEntry(true);
 	}
 	
 	@Override
-	public PoolEntry<T> tryBorrowEntry(boolean createNew) throws CreatePoolEntryException {
+	public PoolEntry<T> tryBorrowEntry(boolean createNew) throws PoolException {
 		boolean acquireSuccess = borrowingSemaphore.tryAcquire();
 		if (!acquireSuccess) {
 			return null;
@@ -97,7 +97,7 @@ public class BasicPool<T> implements Pool<T> {
 			return innerBorrowEntry(createNew);
 		} catch (Exception e) {
 			borrowingSemaphore.release();
-			throw new CreatePoolEntryException(e);
+			throw new PoolException(e);
 		}
 	}
 

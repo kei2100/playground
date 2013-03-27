@@ -10,8 +10,8 @@ public class PoolConfig {
 	private long invalidateIntervalMillis = 1000;
 
 	private int minIdleEntries = 2;
-	private int refillThreads = 1;
-	private long refillIntervalMillis = 1000;
+	private int ensureThreads = 1;
+	private long ensureIntervalMillis = 1000;
 	
 	public PoolConfig() {
 	}
@@ -65,17 +65,17 @@ public class PoolConfig {
 		this.invalidateIntervalMillis = invalidateIntervalMillis;
 	}
 		
-	public int getRefillThreads() {
-		return refillThreads;
+	public int getEnsureThreads() {
+		return ensureThreads;
 	}
-	public void setRefillThreads(int refillThreads) {
-		this.refillThreads = refillThreads;
+	public void setEnsureThreads(int ensureThreads) {
+		this.ensureThreads = ensureThreads;
 	}
 	
-	public long getRefillIntervalMillis() {
-		return refillIntervalMillis;
+	public long getEnsureIntervalMillis() {
+		return ensureIntervalMillis;
 	}
-	public void setRefillIntervalMillis(long refillIntervalMillis) {
-		this.refillIntervalMillis = refillIntervalMillis;
+	public void setEnsureIntervalMillis(long ensureIntervalMillis) {
+		this.ensureIntervalMillis = ensureIntervalMillis;
 	}
 }

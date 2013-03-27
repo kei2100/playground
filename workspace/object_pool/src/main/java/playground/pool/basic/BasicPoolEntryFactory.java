@@ -23,7 +23,6 @@ public class BasicPoolEntryFactory<T> implements PoolEntryFactory<T> {
 			object = objectFactory.createInstance();
 			return new BasicPoolEntry<T>(object, validator);
 		} catch (Exception e) {
-			validator.invalidate(object);
 			throw e;
 		}
 	}

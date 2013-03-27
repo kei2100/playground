@@ -18,8 +18,8 @@ public class Hoge {
 		poolConfig.setMinIdleEntries(2);
 		poolConfig.setInvalidateThreads(4);
 		poolConfig.setInvalidateIntervalMillis(5);
-		poolConfig.setRefillThreads(2);
-		poolConfig.setRefillIntervalMillis(30);
+		poolConfig.setEnsureThreads(2);
+		poolConfig.setEnsureIntervalMillis(30);
 		
 		BasicPoolEntryFactory<String> entryFactory = new BasicPoolEntryFactory<String>(
 				new TestObjectFactory(), new TestObjectValidator());

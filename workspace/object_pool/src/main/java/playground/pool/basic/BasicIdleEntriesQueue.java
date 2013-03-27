@@ -15,7 +15,7 @@ public class BasicIdleEntriesQueue<T> implements IdleEntriesQueue<T>{
 	private final ConcurrentLinkedQueue<PoolEntry<T>> idleEntries;
 	private final AtomicInteger idleEntriesCount;
 
-	protected BasicIdleEntriesQueue(PoolConfig config) {
+	public BasicIdleEntriesQueue(PoolConfig config) {
 		this.config = config;
 		
 		idleEntries = new ConcurrentLinkedQueue<PoolEntry<T>>();
@@ -39,7 +39,13 @@ public class BasicIdleEntriesQueue<T> implements IdleEntriesQueue<T>{
 
 		if (idleCount > config.getMaxIdleEntries()) {
 			idleEntriesCount.decrementAndGet();
-			entry.invalidate();
+
+			try {
+				entry.invalidate();
+			} catch (Exception e) {
+				// TODO 自動生成された catch ブロック
+				e.printStackTrace();
+			}
 		} else {
 			idleEntries.add(entry);
 		}

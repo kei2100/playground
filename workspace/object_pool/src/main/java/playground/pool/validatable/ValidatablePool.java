@@ -15,8 +15,8 @@ public class ValidatablePool<T> implements Pool<T> {
 	private final ValidationConfig config;
 	private ValidatablePoolThread<T> validationThread;
 	
-	public ValidatablePool(Pool<T> pool, ValidationConfig config) {
-		delegate = pool;
+	public ValidatablePool(Pool<T> delegate, ValidationConfig config) {
+		this.delegate = delegate;
 		this.config = config;
 				
 		if (config.isTestInBackground()) {

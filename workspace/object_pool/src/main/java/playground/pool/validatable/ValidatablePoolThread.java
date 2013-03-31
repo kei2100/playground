@@ -1,6 +1,5 @@
 package playground.pool.validatable;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -30,10 +29,12 @@ public class ValidatablePoolThread<T> {
 	protected void scheduleBackgroundValidate() {
 		taskBootstrapExecutor = 
 				Executors.newScheduledThreadPool(
-						1, new NameableDaemonThreadFactory(ValidateTaskBootstrap.class.getSimpleName()));
+						1, 
+						new NameableDaemonThreadFactory(ValidateTaskBootstrap.class.getSimpleName()));
 		taskExecutor = 
 				Executors.newFixedThreadPool(
-						config.getTestInBackgroundThreads(), new NameableDaemonThreadFactory(ValidateTask.class.getSimpleName()));
+						config.getTestInBackgroundThreads(), 
+						new NameableDaemonThreadFactory(ValidateTask.class.getSimpleName()));
 		
 		ValidateTaskBootstrap bootstrap = new ValidateTaskBootstrap();
 		taskBootstrapExecutor.scheduleWithFixedDelay(
@@ -52,65 +53,56 @@ public class ValidatablePoolThread<T> {
 	}	
 	
 	private class ValidateTaskBootstrap implements Runnable {
+		private static final boolean DO_NOT_CREATE_NEW = false;
+		
+		private final Object dummy = new Object();		
+		private ConcurrentMap<Integer, Object> alreadyValidatedCheckMap;
+		
 		@Override
 		public void run() {
 			int maxIdleEntries = pool.getPoolConfig().getMaxIdleEntries();
-			ConcurrentMap<Integer, Object> alreadyValidatedCheckMap = 
-					new ConcurrentHashMap<Integer, Object>(maxIdleEntries);
+			alreadyValidatedCheckMap = new ConcurrentHashMap<Integer, Object>(maxIdleEntries);
 			
 			// TODO delete sysout
 			System.out.println("----------");
-			int threadPoolSize = config.getTestInBackgroundThreads();
-			for (int i = 0; i < threadPoolSize; i++) {
-				ValidateTask task = new ValidateTask(alreadyValidatedCheckMap);
-				taskExecutor.submit(task);
-			}			
-		}
-	}
-	
-	private class ValidateTask implements Callable<Void> {
-		private final ConcurrentMap<Integer, Object> alreadyValidatedCheckMap;
-
-		public ValidateTask(ConcurrentMap<Integer, Object> alreadyValidatedCheckMap) {
-			this.alreadyValidatedCheckMap = alreadyValidatedCheckMap;
-		}
-
-		@Override
-		public Void call() {
-			// validate idleEntries.
-			PoolEntry<T> idleEntry = null;
 			try {
-				while ((idleEntry = pool.tryBorrowEntry(false)) != null) {				
+				while (true) {
+					PoolEntry<T> idleEntry = pool.tryBorrowEntry(DO_NOT_CREATE_NEW);
+
+					if (idleEntry == null) {
+						break;
+					}
 					if (isAlreadyValidated(idleEntry)) {
 						pool.returnEntry(idleEntry);
 						break;
 					}
-					validateAndReturn(idleEntry);
+					
+					taskExecutor.submit(new ValidateTask(idleEntry));
 				}
 			} catch (PoolException e) {
 				// TODO Logger
 				e.printStackTrace();
-				if (idleEntry != null) {
-					pool.returnEntry(idleEntry);
-				}
-			}
-			
-			return null;
+			}			
 		}
-
 
 		private boolean isAlreadyValidated(PoolEntry<T> idleEntry) {
 			int hashCode = idleEntry.hashCode();
-			Object dummy = new Object();
-			
 			Object result = alreadyValidatedCheckMap.putIfAbsent(hashCode, dummy);
 			return (result != null); 
 		}
-
-		private void validateAndReturn(PoolEntry<T> idleEntry) {
+	}
+	
+	private class ValidateTask implements Runnable {
+		private final PoolEntry<T> idleEntry;
+		
+		private ValidateTask(PoolEntry<T> idleEntry) {
+			this.idleEntry = idleEntry;
+		}
+		
+		@Override
+		public void run() {
 			ValidationHelper.validate(config, idleEntry);
 			pool.returnEntry(idleEntry);
 		}
 	}
-
 }

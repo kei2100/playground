@@ -4,7 +4,7 @@ import playground.pool.PoolEntry;
 import playground.pool.PoolEntryState;
 import playground.pool.ValidationConfig;
 
-public class ValidationHelper {
+class ValidationHelper {
 
 	static <T> boolean validate(ValidationConfig config, PoolEntry<T> entry) {
 		PoolEntryState state = entry.getState();

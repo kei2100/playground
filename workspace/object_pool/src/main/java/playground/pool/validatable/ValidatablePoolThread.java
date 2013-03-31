@@ -13,7 +13,7 @@ import playground.pool.PoolException;
 import playground.pool.ValidationConfig;
 import playground.pool.util.NameableDaemonThreadFactory;
 
-public class ValidatablePoolThread<T> {
+class ValidatablePoolThread<T> {
 
 	private final Pool<T> pool;
 	private final ValidationConfig config;
@@ -21,12 +21,12 @@ public class ValidatablePoolThread<T> {
 	private ScheduledExecutorService taskBootstrapExecutor;	
 	private ExecutorService taskExecutor;
 	
-	protected ValidatablePoolThread(Pool<T> pool, ValidationConfig config) {
+	ValidatablePoolThread(Pool<T> pool, ValidationConfig config) {
 		this.pool = pool;
 		this.config = config;
 	}
 	
-	protected void scheduleBackgroundValidate() {
+	void scheduleBackgroundValidate() {		
 		taskBootstrapExecutor = 
 				Executors.newScheduledThreadPool(
 						1, 

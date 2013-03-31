@@ -25,9 +25,8 @@ public class Hoge {
 		
 		BasicPool<String> poolbase = new BasicPool<String>(
 				poolConfig,
-				entryFactory,
-//				new BasicIdleEntriesQueue<String>(poolConfig)
-				new AsyncAdjustIdleEntriesQueue<String>(poolConfig, entryFactory)
+				new AsyncAdjustIdleEntriesQueue<String>(poolConfig, entryFactory),
+				entryFactory
 				);
 
 		ValidationConfig config = new ValidationConfig();

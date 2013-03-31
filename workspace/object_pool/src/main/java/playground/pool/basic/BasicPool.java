@@ -20,11 +20,11 @@ public class BasicPool<T> implements Pool<T> {
 	
 	private final Semaphore borrowingSemaphore;
 		
-	public BasicPool(PoolConfig config, PoolEntryFactory<T> entryFactory, IdleEntriesQueue<T> idleEntries)
+	public BasicPool(PoolConfig config, IdleEntriesQueue<T> idleEntries, PoolEntryFactory<T> entryFactory)
 	throws PoolException {
 		this.config = config;
-		this.entryFactory = entryFactory;
 		this.idleEntries = idleEntries;
+		this.entryFactory = entryFactory;
 		
 		borrowingSemaphore = new Semaphore(config.getMaxActiveEntries());
 		

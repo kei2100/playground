@@ -42,14 +42,14 @@ class ValidatablePoolThread<T> {
 						new NameableDaemonThreadFactory(ValidateTaskBootstrap.class.getSimpleName()));
 		taskExecutor = 
 				Executors.newFixedThreadPool(
-						config.getTestInBackgroundThreads(), 
+						config.getTestThreads(), 
 						new NameableDaemonThreadFactory(ValidateTask.class.getSimpleName()));
 		
 		ValidateTaskBootstrap bootstrap = new ValidateTaskBootstrap();
 		taskBootstrapExecutor.scheduleWithFixedDelay(
 				bootstrap, 
-				config.getTestInBackgroundInitialDelayMillis(),
-				config.getTestInBackgroundIntervalMillis(), 
+				config.getTestThreadInitialDelayMillis(),
+				config.getTestThreadIntervalMillis(), 
 				TimeUnit.MILLISECONDS);
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
@@ -61,6 +61,7 @@ class ValidatablePoolThread<T> {
 		}));
 	}	
 	
+	// TODO threading design
 	private class ValidateTaskBootstrap implements Runnable {
 		private static final boolean DO_NOT_CREATE_NEW = false;
 		

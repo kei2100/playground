@@ -9,11 +9,11 @@ public class ValidationConfig {
 	// TODO maxage
 //	private long maxAgeMillis = 0;
 	
-	private int testInBackgroundThreads = 0;
+	private int testThreads = 0;
 	// default 10min
-	private long testInBackgroundInitialDelayMillis = 1000 * 60 * 10; 
+	private long testThreadInitialDelayMillis = 1000 * 60 * 10; 
 	// default 10min
-	private long testInBackgroundIntervalMillis = 1000 * 60 * 10;
+	private long testThreadIntervalMillis = 1000 * 60 * 10;
 
 	
 	public ValidationConfig() {
@@ -24,7 +24,7 @@ public class ValidationConfig {
 	}
 	
 	public boolean isTestInBackground() {
-		return testInBackgroundThreads > 0;
+		return testThreads > 0;
 	}
 	
 	public boolean isTestOnBorrow() {
@@ -48,24 +48,24 @@ public class ValidationConfig {
 		this.testIntervalMillis = testIntervalMillis;
 	}
 
-	public int getTestInBackgroundThreads() {
-		return testInBackgroundThreads;
+	public int getTestThreads() {
+		return testThreads;
 	}
-	public void setTestInBackgroundThreads(int testInBackgroundThreads) {
-		this.testInBackgroundThreads = testInBackgroundThreads;
+	public void setTestThreads(int testThreads) {
+		this.testThreads = testThreads;
 	}
 	
-	public long getTestInBackgroundInitialDelayMillis() {
-		return testInBackgroundInitialDelayMillis;
+	public long getTestThreadInitialDelayMillis() {
+		return testThreadInitialDelayMillis;
 	}
-	public void setTestInBackgroundInitialDelayMillis(long testInBackgroundInitialDelayMillis) {
-		this.testInBackgroundInitialDelayMillis = testInBackgroundInitialDelayMillis;
+	public void setTestThreadInitialDelayMillis(long testThreadInitialDelayMillis) {
+		this.testThreadInitialDelayMillis = testThreadInitialDelayMillis;
 	}
 
-	public long getTestInBackgroundIntervalMillis() {
-		return testInBackgroundIntervalMillis;
+	public long getTestThreadIntervalMillis() {
+		return testThreadIntervalMillis;
 	}
-	public void setTestInBackgroundIntervalMillis(long testInBackgroundIntervalMillis) {
-		this.testInBackgroundIntervalMillis = testInBackgroundIntervalMillis;
+	public void setTestThreadIntervalMillis(long testThreadIntervalMillis) {
+		this.testThreadIntervalMillis = testThreadIntervalMillis;
 	}
 }

@@ -32,8 +32,8 @@ public class Hoge {
 		ValidationConfig config = new ValidationConfig();
 		config.setTestOnBorrow(false);
 //		config.setTestIntervalMillis(3000);
-		config.setTestInBackgroundIntervalMillis(1000);
-		config.setTestInBackgroundThreads(4);
+		config.setTestThreadIntervalMillis(1000);
+		config.setTestThreads(4);
 				
 		ValidatablePool<String> pool = new ValidatablePool<String>(poolbase, config);		
 		TimeUnit.SECONDS.sleep(6);

@@ -32,11 +32,21 @@ public class BasicPoolEntry<T> implements PoolEntry<T> {
 	@Override
 	public boolean validate() throws Exception {
 		boolean expectValid = state.isValid();
+		if (!expectValid) {
+			// already invalidated
+			return false;
+		}
+		
 		boolean updateValid = validator.validate(object);
 		boolean updateSuccessful = state.compareAndSetValid(expectValid, updateValid);
 		
 		// return true, if entry is not invalidated while setting the state
-		return (updateValid && updateSuccessful);
+		if (updateValid && updateSuccessful) {
+			state.setLastValidatedAt(System.currentTimeMillis());
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	@Override

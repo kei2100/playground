@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import playground.pool.Pool;
 import playground.pool.PoolEntry;
@@ -18,6 +19,7 @@ class ValidatablePoolThread<T> {
 	private final Pool<T> pool;
 	private final ValidationConfig config;
 	
+	private AtomicBoolean isScheduled = new AtomicBoolean(false); 
 	private ScheduledExecutorService taskBootstrapExecutor;	
 	private ExecutorService taskExecutor;
 	
@@ -27,6 +29,13 @@ class ValidatablePoolThread<T> {
 	}
 	
 	void scheduleBackgroundValidate() {		
+		if (isScheduled.get()) {
+			throw new IllegalStateException("already scheduled");
+		}
+		if (!isScheduled.compareAndSet(false, true)) {
+			throw new IllegalStateException("already scheduled");
+		}
+		
 		taskBootstrapExecutor = 
 				Executors.newScheduledThreadPool(
 						1, 

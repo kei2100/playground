@@ -1,18 +1,20 @@
 package playground.pool;
 
 public class ValidationConfig {
-	
-	// TODO default value
+	// TODO validateState
 	private boolean testOnBorrow = true;
 	private boolean testOnReturn = false;
 	private long testIntervalMillis = 0;
-	
-	private int testInBackgroundThreads = 1;
-	private long testInBackgroundInitialDelayMillis = 3000; 
-	private long testInBackgroundIntervalMillis = 1000;
 
 	// TODO maxage
-	// TODO validateState
+//	private long maxAgeMillis = 0;
+	
+	private int testInBackgroundThreads = 0;
+	// default 10min
+	private long testInBackgroundInitialDelayMillis = 1000 * 60 * 10; 
+	// default 10min
+	private long testInBackgroundIntervalMillis = 1000 * 60 * 10;
+
 	
 	public ValidationConfig() {
 	}
@@ -22,7 +24,7 @@ public class ValidationConfig {
 	}
 	
 	public boolean isTestInBackground() {
-		return testInBackgroundIntervalMillis > 0;
+		return testInBackgroundThreads > 0;
 	}
 	
 	public boolean isTestOnBorrow() {

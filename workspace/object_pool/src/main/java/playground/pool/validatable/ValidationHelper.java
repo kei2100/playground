@@ -1,14 +1,12 @@
 package playground.pool.validatable;
 
 import playground.pool.PoolEntry;
-import playground.pool.PoolEntryState;
 import playground.pool.ValidationConfig;
 
 class ValidationHelper {
 
 	static <T> boolean validate(ValidationConfig config, PoolEntry<T> entry) {
-		PoolEntryState state = entry.getState();
-		long lastValidatedAt = state.getLastValidatedAt();
+		long lastValidatedAt = entry.getState().getLastValidatedAt();
 		
 		if (config.isTestWithInterval()) {
 			if (!intervalElapses(config, lastValidatedAt)) {
@@ -18,8 +16,6 @@ class ValidationHelper {
 		
 		boolean validateSuccessful = innerValidate(entry);
 		if (validateSuccessful) {
-			long now = System.currentTimeMillis();
-			state.compareAndSetLastValidatedAt(lastValidatedAt, now);
 			return true;
 		} else {
 			innerInvalidate(entry);

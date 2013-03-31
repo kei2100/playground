@@ -8,16 +8,15 @@ import java.util.concurrent.atomic.AtomicLong;
  * */
 public class PoolEntryState {
 	
-	private AtomicLong lastValidatedAt = new AtomicLong(0);
+	private AtomicLong lastValidatedAt = new AtomicLong(System.currentTimeMillis());
 	
 	private AtomicBoolean valid = new AtomicBoolean(true);
 	
 	public long getLastValidatedAt() {
 		return lastValidatedAt.longValue();
 	}
-	
-	public boolean compareAndSetLastValidatedAt(long expect, long update) {
-		return lastValidatedAt.compareAndSet(expect, update);
+	public void setLastValidatedAt(long lastValidatedAt) {
+		this.lastValidatedAt.set(lastValidatedAt);
 	}
 	
 	public boolean isValid() {

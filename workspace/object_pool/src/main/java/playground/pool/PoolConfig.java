@@ -1,28 +1,31 @@
 package playground.pool;
 
+
 public class PoolConfig {
-	// TODO default value
 	// TODO validate state
-	private int initialEntries = 5;
-	private int maxActiveEntries = 10;
-	private long maxWaitMillisOnBorrow = 3000;
+	private int maxActiveEntries = 8;
+	private int initialEntries = 0;
+	private int maxIdleEntries = 8;
+	// 0 is wait forever to borrowed.
+	private long maxWaitMillisOnBorrow = 1000;
 	
-	private int maxIdleEntries = 5;
-	private int invalidateThreads = 1;
+	private int invalidateThreads = 0;
+	private long invalidateThreadInitialDelayMillis = 1000;
 	private long invalidateIntervalMillis = 1000;
 
-	private int minIdleEntries = 2;
-	private int ensureThreads = 1;
+	private int minIdleEntries = 0;
+	private int ensureThreads = 0;
 	private long ensureIntervalMillis = 1000;
 	
 	public PoolConfig() {
 	}
-
-	public int getInitialEntries() {
-		return initialEntries;
+		
+	public boolean isInvalidateInBackground() {
+		return (invalidateThreads > 0);
 	}
-	public void setInitialEntries(int initialEntries) {
-		this.initialEntries = initialEntries;
+	
+	public boolean isEnsureInBackground() {
+		return (ensureThreads > 0);
 	}
 	
 	public int getMaxActiveEntries() {
@@ -31,7 +34,14 @@ public class PoolConfig {
 	public void setMaxActiveEntries(int maxActiveEntries) {
 		this.maxActiveEntries = maxActiveEntries;
 	}
-
+	
+	public int getInitialEntries() {
+		return initialEntries;
+	}
+	public void setInitialEntries(int initialEntries) {
+		this.initialEntries = initialEntries;
+	}
+	
 	public long getMaxWaitMillisOnBorrow() {
 		return maxWaitMillisOnBorrow;
 	}
@@ -60,6 +70,13 @@ public class PoolConfig {
 		this.invalidateThreads = invalidateThreads;
 	}
 
+	public long getInvalidateThreadInitialDelayMillis() {
+		return invalidateThreadInitialDelayMillis;
+	}
+	public void setInvalidateThreadInitialDelayMillis(long invalidateThreadInitialDelayMillis) {
+		this.invalidateThreadInitialDelayMillis = invalidateThreadInitialDelayMillis;
+	}
+	
 	public long getInvalidateIntervalMillis() {
 		return invalidateIntervalMillis;
 	}

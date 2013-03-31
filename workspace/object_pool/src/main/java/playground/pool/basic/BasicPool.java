@@ -54,14 +54,19 @@ public class BasicPool<T> implements Pool<T> {
 	@Override
 	public PoolEntry<T> borrowEntry(boolean createNew)
 			throws InterruptedException, TimeoutException, PoolException {
+
+		long timeout = config.getMaxWaitMillisOnBorrow();
 		try {
-			boolean acquireSuccess = 
-					borrowingSemaphore.tryAcquire(
-							config.getMaxWaitMillisOnBorrow(), TimeUnit.MILLISECONDS);
-			
-			if (!acquireSuccess) {
-				// pool entries all busy
-				throw new TimeoutException(/* TODO */);
+			if (timeout == 0) {
+				borrowingSemaphore.acquire();
+			} else {
+				boolean acquireSuccess = 
+						borrowingSemaphore.tryAcquire(timeout, TimeUnit.MILLISECONDS);
+				
+				if (!acquireSuccess) {
+					// pool entries all busy
+					throw new TimeoutException("borrowEntry timed out.");
+				}
 			}
 		} catch (InterruptedException e) {
 			throw e;

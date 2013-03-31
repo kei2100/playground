@@ -44,12 +44,6 @@ public class BasicPool<T> implements Pool<T> {
 		return config;
 	}
 	
-	// TODO delete
-	@Deprecated
-	public IdleEntriesQueue<T> getIdleEntries() {
-		return idleEntries;
-	}
-	
 	@Override
 	public PoolEntry<T> borrowEntry() 
 			throws InterruptedException, TimeoutException, PoolException {
@@ -114,11 +108,9 @@ public class BasicPool<T> implements Pool<T> {
 	
 	private PoolEntry<T> innerBorrowEntry(boolean createNew) throws Exception {
 		PoolEntry<T> idleEntry = idleEntries.poll();
-		
 		if (idleEntry == null) {
 			if (createNew) return createIdleEntry();
 		}
-		
 		return idleEntry;
 	}
 			
@@ -127,7 +119,6 @@ public class BasicPool<T> implements Pool<T> {
 			// do nothing.
 			return;
 		}
-		
 		idleEntries.add(entry);
 	}
 	

@@ -17,7 +17,7 @@ import playground.pool.IdleEntriesQueue;
 import playground.pool.PoolConfig;
 import playground.pool.PoolEntry;
 import playground.pool.PoolEntryFactory;
-import playground.pool.util.NameableThreadFactory;
+import playground.pool.util.NameableDaemonThreadFactory;
 
 public class AsyncAdjustIdleEntriesQueue<T> implements IdleEntriesQueue<T> {
 
@@ -101,7 +101,7 @@ public class AsyncAdjustIdleEntriesQueue<T> implements IdleEntriesQueue<T> {
 			
 			invalidateTaskExecutor = 
 					Executors.newFixedThreadPool(
-							threadPoolSize, new NameableThreadFactory(InvalidateTask.class.getSimpleName()));
+							threadPoolSize, new NameableDaemonThreadFactory(InvalidateTask.class.getSimpleName()));
 			
 			for (int i = 0; i < threadPoolSize; i++) {
 				invalidateTaskExecutor.submit(new InvalidateTask());
@@ -151,11 +151,11 @@ public class AsyncAdjustIdleEntriesQueue<T> implements IdleEntriesQueue<T> {
 		protected void scheduluBackgroundEnsure() {
 			ensureTaskBootstrapExecutor = 
 					Executors.newScheduledThreadPool(
-							1, new NameableThreadFactory(EnsureTaskBootstrap.class.getSimpleName()));
+							1, new NameableDaemonThreadFactory(EnsureTaskBootstrap.class.getSimpleName()));
 
 			ensureTaskExecutor = 
 					Executors.newFixedThreadPool(
-							config.getEnsureThreads(), new NameableThreadFactory(EnsureTask.class.getSimpleName()));
+							config.getEnsureThreads(), new NameableDaemonThreadFactory(EnsureTask.class.getSimpleName()));
 			
 			EnsureTaskBootstrap bootstrap = new EnsureTaskBootstrap();
 			long initialDelay = 0;

@@ -35,6 +35,7 @@ public class BasicPoolEntry<T> implements PoolEntry<T> {
 		boolean updateValid = validator.validate(object);
 		boolean updateSuccessful = state.compareAndSetValid(expectValid, updateValid);
 		
+		// return true, if entry is not invalidated while setting the state
 		return (updateValid && updateSuccessful);
 	}
 	

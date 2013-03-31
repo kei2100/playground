@@ -25,11 +25,9 @@ public class BasicIdleEntriesQueue<T> implements IdleEntriesQueue<T>{
 	@Override
 	public PoolEntry<T> poll() {
 		PoolEntry<T> idle = idleEntries.poll();
-
 		if (idle != null) {
 			idleEntriesCount.decrementAndGet();
 		}
-		
 		return idle;
 	}
 	
@@ -39,11 +37,10 @@ public class BasicIdleEntriesQueue<T> implements IdleEntriesQueue<T>{
 
 		if (idleCount > config.getMaxIdleEntries()) {
 			idleEntriesCount.decrementAndGet();
-
 			try {
 				entry.invalidate();
 			} catch (Exception e) {
-				// TODO 自動生成された catch ブロック
+				// TODO Logger
 				e.printStackTrace();
 			}
 		} else {

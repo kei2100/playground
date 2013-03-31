@@ -3,12 +3,12 @@ package playground.pool.util;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class NameableThreadFactory implements ThreadFactory {
+public class NameableDaemonThreadFactory implements ThreadFactory {
 	
 	private final String threadName;
 	private final AtomicInteger threadNum; 
 	
-	public NameableThreadFactory(String threadName) {
+	public NameableDaemonThreadFactory(String threadName) {
 		if (threadName == null) throw new NullPointerException();
 		
 		this.threadName = threadName;
@@ -25,8 +25,8 @@ public class NameableThreadFactory implements ThreadFactory {
 				.append(threadNum.getAndIncrement())
 				.toString()
 				);
-
-		if (th.isDaemon()) th.setDaemon(false);
+		
+		if (!th.isDaemon()) th.setDaemon(true);
 		if (th.getPriority() != Thread.NORM_PRIORITY) th.setPriority(Thread.NORM_PRIORITY);
 		
 		return th;

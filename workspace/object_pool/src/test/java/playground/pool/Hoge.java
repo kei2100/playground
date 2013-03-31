@@ -40,7 +40,7 @@ public class Hoge {
 		ValidatablePool<String> pool = new ValidatablePool<String>(poolbase, config);		
 		TimeUnit.SECONDS.sleep(6);
 
-		while(true) {
+//		while(true) {
 		pool.borrowEntry();
 		TimeUnit.MILLISECONDS.sleep(30);
 		pool.borrowEntry();
@@ -79,7 +79,7 @@ public class Hoge {
 		pool.returnEntry(entryFactory.createPoolEntry());
 		pool.returnEntry(entryFactory.createPoolEntry());
 		TimeUnit.MILLISECONDS.sleep(500);
-		}
+//		}
 		
 		
 //		while(true) {

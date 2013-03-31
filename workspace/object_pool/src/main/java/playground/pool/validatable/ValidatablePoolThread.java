@@ -10,8 +10,9 @@ import java.util.concurrent.TimeUnit;
 
 import playground.pool.IdleEntriesQueue;
 import playground.pool.PoolEntry;
+import playground.pool.PoolException;
 import playground.pool.basic.BasicPool;
-import playground.pool.util.NameableThreadFactory;
+import playground.pool.util.NameableDaemonThreadFactory;
 
 public class ValidatablePoolThread<T> {
 
@@ -29,10 +30,10 @@ public class ValidatablePoolThread<T> {
 	protected void scheduleBackgroundValidate() {
 		bootstrapTaskExecutor = 
 				Executors.newScheduledThreadPool(
-						1, new NameableThreadFactory(ValidateTaskBootstrap.class.getSimpleName()));
+						1, new NameableDaemonThreadFactory(ValidateTaskBootstrap.class.getSimpleName()));
 		taskExecutor = 
 				Executors.newFixedThreadPool(
-						config.getTestInBackgroundThreads(), new NameableThreadFactory(ValidateTask.class.getSimpleName()));
+						config.getTestInBackgroundThreads(), new NameableDaemonThreadFactory(ValidateTask.class.getSimpleName()));
 		
 		ValidateTaskBootstrap bootstrap = new ValidateTaskBootstrap();
 		bootstrapTaskExecutor.scheduleWithFixedDelay(
@@ -78,17 +79,22 @@ public class ValidatablePoolThread<T> {
 		public Void call() {
 			// validate idleEntries.
 			PoolEntry<T> idleEntry = null;
-			
-			// TODO tryBorrow
-			IdleEntriesQueue<T> idleEntries = pool.getIdleEntries();
-			
-			while ((idleEntry = idleEntries.poll()) != null) {				
-				if (isAlreadyValidated(idleEntry)) {
-					pool.returnEntry(idleEntry);
-					break;
+			try {
+				while ((idleEntry = pool.tryBorrowEntry(false)) != null) {				
+					if (isAlreadyValidated(idleEntry)) {
+						pool.returnEntry(idleEntry);
+						break;
+					}
+					validateAndReturn(idleEntry);
 				}
-				validateAndReturn(idleEntry);
+			} catch (PoolException e) {
+				// TODO Logger
+				e.printStackTrace();
+				if (idleEntry != null) {
+					pool.returnEntry(idleEntry);
+				}
 			}
+			
 			return null;
 		}
 

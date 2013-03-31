@@ -6,7 +6,6 @@ import playground.pool.asyncadjust.AsyncAdjustIdleEntriesQueue;
 import playground.pool.basic.BasicPool;
 import playground.pool.basic.BasicPoolEntryFactory;
 import playground.pool.validatable.ValidatablePool;
-import playground.pool.validatable.ValidationConfig;
 
 
 public class Hoge {

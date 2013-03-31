@@ -2,6 +2,7 @@ package playground.pool.validatable;
 
 import playground.pool.PoolEntry;
 import playground.pool.PoolEntryState;
+import playground.pool.ValidationConfig;
 
 public class ValidationHelper {
 
@@ -26,13 +27,12 @@ public class ValidationHelper {
 		}
 	}
 
-
 	private static <T> boolean innerValidate(PoolEntry<T> entry) {
 		try {
 			boolean validateSuccessful = entry.validate();
 			return validateSuccessful;
 		} catch (Exception e) {
-			// TODO 自動生成された catch ブロック
+			// TODO Logger
 			e.printStackTrace();
 			innerInvalidate(entry);
 			return false;
@@ -43,7 +43,7 @@ public class ValidationHelper {
 		try {
 			entry.invalidate();
 		} catch (Exception e) {
-			// TODO 自動生成された catch ブロック
+			// TODO Logger
 			e.printStackTrace();
 		}
 	}

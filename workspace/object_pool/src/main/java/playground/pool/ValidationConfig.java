@@ -1,7 +1,8 @@
-package playground.pool.validatable;
+package playground.pool;
 
 public class ValidationConfig {
 	
+	// TODO default value
 	private boolean testOnBorrow = true;
 	private boolean testOnReturn = false;
 	private long testIntervalMillis = 0;
@@ -11,6 +12,7 @@ public class ValidationConfig {
 	private long testInBackgroundIntervalMillis = 1000;
 
 	// TODO maxage
+	// TODO validateState
 	
 	public ValidationConfig() {
 	}

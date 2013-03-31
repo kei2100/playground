@@ -1,6 +1,8 @@
 package playground.pool;
 
 public class PoolConfig {
+	// TODO default value
+	// TODO validate state
 	private int initialEntries = 5;
 	private int maxActiveEntries = 10;
 	private long maxWaitMillisOnBorrow = 3000;

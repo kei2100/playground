@@ -8,27 +8,27 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import playground.pool.IdleEntriesQueue;
+import playground.pool.Pool;
 import playground.pool.PoolEntry;
 import playground.pool.PoolException;
-import playground.pool.basic.BasicPool;
+import playground.pool.ValidationConfig;
 import playground.pool.util.NameableDaemonThreadFactory;
 
 public class ValidatablePoolThread<T> {
 
-	private final BasicPool<T> pool;
+	private final Pool<T> pool;
 	private final ValidationConfig config;
 	
-	private ScheduledExecutorService bootstrapTaskExecutor;	
+	private ScheduledExecutorService taskBootstrapExecutor;	
 	private ExecutorService taskExecutor;
 	
-	protected ValidatablePoolThread(BasicPool<T> pool, ValidationConfig config) {
+	protected ValidatablePoolThread(Pool<T> pool, ValidationConfig config) {
 		this.pool = pool;
 		this.config = config;
 	}
 	
 	protected void scheduleBackgroundValidate() {
-		bootstrapTaskExecutor = 
+		taskBootstrapExecutor = 
 				Executors.newScheduledThreadPool(
 						1, new NameableDaemonThreadFactory(ValidateTaskBootstrap.class.getSimpleName()));
 		taskExecutor = 
@@ -36,7 +36,7 @@ public class ValidatablePoolThread<T> {
 						config.getTestInBackgroundThreads(), new NameableDaemonThreadFactory(ValidateTask.class.getSimpleName()));
 		
 		ValidateTaskBootstrap bootstrap = new ValidateTaskBootstrap();
-		bootstrapTaskExecutor.scheduleWithFixedDelay(
+		taskBootstrapExecutor.scheduleWithFixedDelay(
 				bootstrap, 
 				config.getTestInBackgroundInitialDelayMillis(),
 				config.getTestInBackgroundIntervalMillis(), 
@@ -46,7 +46,7 @@ public class ValidatablePoolThread<T> {
 			@Override
 			public void run() {
 				taskExecutor.shutdownNow();
-				bootstrapTaskExecutor.shutdownNow();
+				taskBootstrapExecutor.shutdownNow();
 			}
 		}));
 	}	

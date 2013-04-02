@@ -15,9 +15,9 @@ public class Hoge {
 		poolConfig.setInitialEntries(5);
 		poolConfig.setMaxIdleEntries(5);
 		poolConfig.setMinIdleEntries(2);
-		poolConfig.setInvalidateThreads(4);
+		poolConfig.setInvalidateThreads(1);
 		poolConfig.setInvalidateIntervalMillis(5);
-		poolConfig.setEnsureThreads(2);
+		poolConfig.setEnsureThreads(1);
 		poolConfig.setEnsureIntervalMillis(30);
 		
 		BasicPoolEntryFactory<String> entryFactory = new BasicPoolEntryFactory<String>(
@@ -33,7 +33,8 @@ public class Hoge {
 		config.setTestOnBorrow(false);
 //		config.setTestIntervalMillis(3000);
 		config.setTestThreadIntervalMillis(1000);
-		config.setTestThreads(4);
+		config.setTestThreadInitialDelayMillis(1000);
+		config.setTestThreads(1);
 				
 		ValidatablePool<String> pool = new ValidatablePool<String>(poolbase, config);		
 		TimeUnit.SECONDS.sleep(6);

@@ -1,6 +1,5 @@
 package playground.pool.asyncadjust;
 
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -17,8 +16,7 @@ class AsyncEnsureThread<T> {
 	private final PoolEntryFactory<T> entryFactory;
 	
 	private AtomicBoolean isScheduled = new AtomicBoolean(false); 
-	private ScheduledExecutorService ensureTaskBootstrapExecutor;
-	private ExecutorService ensureTaskExecutor;
+	private ScheduledExecutorService taskExecutor;
 	
 	AsyncEnsureThread(
 			PoolConfig config, AsyncAdjustIdleEntriesQueue<T> queue, PoolEntryFactory<T> entryFactory) {
@@ -36,26 +34,20 @@ class AsyncEnsureThread<T> {
 			throw new IllegalStateException("already scheduled");
 		}
 		
-		ensureTaskBootstrapExecutor = 
+		taskExecutor = 
 				Executors.newScheduledThreadPool(
-						1, 
-						new NameableDaemonThreadFactory(EnsureTaskBootstrap.class.getSimpleName()));
-
-		ensureTaskExecutor = 
-				Executors.newFixedThreadPool(
 						config.getEnsureThreads(), 
-						new NameableDaemonThreadFactory(EnsureTask.class.getSimpleName()));
+						new NameableDaemonThreadFactory(AsyncEnsureThread.class.getSimpleName()));
 		
 		EnsureTaskBootstrap bootstrap = new EnsureTaskBootstrap();
 		long initialDelay = 0;
-		ensureTaskBootstrapExecutor.scheduleWithFixedDelay(
+		taskExecutor.scheduleWithFixedDelay(
 				bootstrap, initialDelay, config.getEnsureIntervalMillis(), TimeUnit.MILLISECONDS);
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 			@Override
 			public void run() {
-				ensureTaskExecutor.shutdownNow();
-				ensureTaskBootstrapExecutor.shutdownNow();
+				taskExecutor.shutdownNow();
 			}
 		}));
 	}
@@ -66,7 +58,7 @@ class AsyncEnsureThread<T> {
 			int needForEnsure = queue.countNeedForEnsure();
 			
 			for (int i = 0; i < needForEnsure; i++) {
-				ensureTaskExecutor.submit(new EnsureTask());
+				taskExecutor.submit(new EnsureTask());
 				if (notNeedForEnsure()) {
 					break;
 				}

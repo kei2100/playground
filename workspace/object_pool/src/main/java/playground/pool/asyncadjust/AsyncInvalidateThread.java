@@ -1,6 +1,5 @@
 package playground.pool.asyncadjust;
 
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -16,8 +15,7 @@ class AsyncInvalidateThread<T> {
 	private final AsyncAdjustIdleEntriesQueue<T> queue; 
 	
 	private AtomicBoolean isScheduled = new AtomicBoolean(false);
-	private ScheduledExecutorService invalidateTaskBootstrapExecutor;
-	private ExecutorService invalidateTaskExecutor;
+	private ScheduledExecutorService taskExecutor;
 	
 	AsyncInvalidateThread(PoolConfig config, AsyncAdjustIdleEntriesQueue<T> queue) {
 		this.config = config;
@@ -32,18 +30,13 @@ class AsyncInvalidateThread<T> {
 			throw new IllegalStateException("already scheduled");
 		}
 		
-		invalidateTaskBootstrapExecutor = 
+		taskExecutor = 
 				Executors.newScheduledThreadPool(
-						1, 
-						new NameableDaemonThreadFactory(InvalidateTaskBootstrap.class.getSimpleName()));
-		
-		invalidateTaskExecutor = 
-				Executors.newFixedThreadPool(
 						config.getInvalidateThreads(), 
-						new NameableDaemonThreadFactory(InvalidateTask.class.getSimpleName()));
-		
+						new NameableDaemonThreadFactory(AsyncInvalidateThread.class.getSimpleName()));
+				
 		InvalidateTaskBootstrap bootstrap = new InvalidateTaskBootstrap();
-		invalidateTaskBootstrapExecutor.scheduleWithFixedDelay(
+		taskExecutor.scheduleWithFixedDelay(
 				bootstrap, 
 				config.getInvalidateThreadInitialDelayMillis(),
 				config.getInvalidateIntervalMillis(), 
@@ -52,7 +45,7 @@ class AsyncInvalidateThread<T> {
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 			@Override
 			public void run() {
-				invalidateTaskExecutor.shutdownNow();
+				taskExecutor.shutdownNow();
 			}
 		}));
 	}
@@ -64,7 +57,7 @@ class AsyncInvalidateThread<T> {
 				PoolEntry<T> entry = queue.pollToBeInvalidate();
 				if (entry == null) break;
 				
-				invalidateTaskExecutor.submit(new InvalidateTask(entry));
+				taskExecutor.submit(new InvalidateTask(entry));
 			}
 		}
 	}

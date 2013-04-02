@@ -2,7 +2,6 @@ package playground.pool.validatable;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -20,8 +19,7 @@ class ValidatablePoolThread<T> {
 	private final ValidationConfig config;
 	
 	private AtomicBoolean isScheduled = new AtomicBoolean(false); 
-	private ScheduledExecutorService taskBootstrapExecutor;	
-	private ExecutorService taskExecutor;
+	private ScheduledExecutorService taskExecutor;	
 	
 	ValidatablePoolThread(Pool<T> pool, ValidationConfig config) {
 		this.pool = pool;
@@ -36,17 +34,13 @@ class ValidatablePoolThread<T> {
 			throw new IllegalStateException("already scheduled");
 		}
 		
-		taskBootstrapExecutor = 
-				Executors.newScheduledThreadPool(
-						1, 
-						new NameableDaemonThreadFactory(ValidateTaskBootstrap.class.getSimpleName()));
 		taskExecutor = 
-				Executors.newFixedThreadPool(
+				Executors.newScheduledThreadPool(
 						config.getTestThreads(), 
-						new NameableDaemonThreadFactory(ValidateTask.class.getSimpleName()));
+						new NameableDaemonThreadFactory(ValidatablePoolThread.class.getSimpleName()));
 		
 		ValidateTaskBootstrap bootstrap = new ValidateTaskBootstrap();
-		taskBootstrapExecutor.scheduleWithFixedDelay(
+		taskExecutor.scheduleWithFixedDelay(
 				bootstrap, 
 				config.getTestThreadInitialDelayMillis(),
 				config.getTestThreadIntervalMillis(), 
@@ -56,12 +50,10 @@ class ValidatablePoolThread<T> {
 			@Override
 			public void run() {
 				taskExecutor.shutdownNow();
-				taskBootstrapExecutor.shutdownNow();
 			}
 		}));
 	}	
 	
-	// TODO threading design
 	private class ValidateTaskBootstrap implements Runnable {
 		private static final boolean DO_NOT_CREATE_NEW = false;
 		
@@ -115,4 +107,5 @@ class ValidatablePoolThread<T> {
 			pool.returnEntry(idleEntry);
 		}
 	}
+		
 }

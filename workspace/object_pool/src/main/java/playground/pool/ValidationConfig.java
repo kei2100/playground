@@ -1,22 +1,31 @@
 package playground.pool;
 
+import javax.validation.constraints.Min;
+
+import playground.pool.util.PropertyValidator;
+import playground.pool.util.ValidationException;
+
 public class ValidationConfig {
-	// TODO validateState
 	private boolean testOnBorrow = true;
 	private boolean testOnReturn = false;
+	@Min(0)
 	private long testIntervalMillis = 0;
-
-	// TODO maxage
-//	private long maxAgeMillis = 0;
+	@Min(0)
+	private long maxAgeMillis = 0;	// 0 is no limit.
 	
+	@Min(0)
 	private int testThreads = 0;
-	// default 10min
-	private long testThreadInitialDelayMillis = 1000 * 60 * 10; 
-	// default 10min
-	private long testThreadIntervalMillis = 1000 * 60 * 10;
-
+	@Min(0)
+	private long testThreadInitialDelayMillis = 1000 * 60 * 10;	// default 10min 
+	@Min(1)
+	private long testThreadIntervalMillis = 1000 * 60 * 10;	// default 10min
 	
-	public ValidationConfig() {
+	public void validateState() throws ValidationException {
+		validatePropValues();
+	}
+	
+	public void validatePropValues() throws ValidationException {
+		PropertyValidator.INSTANCE.validate(this);
 	}
 	
 	public boolean isTestWithInterval() {
@@ -48,6 +57,13 @@ public class ValidationConfig {
 		this.testIntervalMillis = testIntervalMillis;
 	}
 
+	public long getMaxAgeMillis() {
+		return maxAgeMillis;
+	}
+	public void setMaxAgeMillis(long maxAgeMillis) {
+		this.maxAgeMillis = maxAgeMillis;
+	}
+	
 	public int getTestThreads() {
 		return testThreads;
 	}

@@ -1,23 +1,56 @@
 package playground.pool;
 
+import javax.validation.constraints.Min;
+
+import playground.pool.util.ValidationException;
+import playground.pool.util.PropertyValidator;
+
 
 public class PoolConfig {
 	// TODO validate state
+	@Min(1)
 	private int maxActiveEntries = 8;
+	@Min(0)
 	private int initialEntries = 0;
+	@Min(1)
 	private int maxIdleEntries = 8;
-	// 0 is wait forever to borrowed.
+	// 0 is forever wait to borrow.
+	@Min(0)
 	private long maxWaitMillisOnBorrow = 1000;
 	
+	@Min(0)
 	private int invalidateThreads = 0;
+	@Min(0)
 	private long invalidateThreadInitialDelayMillis = 1000;
+	@Min(1)
 	private long invalidateIntervalMillis = 1000;
 
+	@Min(0)
 	private int minIdleEntries = 0;
+	@Min(0)
 	private int ensureThreads = 0;
+	@Min(1)
 	private long ensureIntervalMillis = 1000;
 	
-	public PoolConfig() {
+	public void validateState() throws ValidationException {
+		validatePropValues();
+		validatePropCorrelation();
+	}
+	
+	private void validatePropValues() throws ValidationException {
+		PropertyValidator.INSTANCE.validate(this);
+	}
+	
+	private void validatePropCorrelation() throws ValidationException {
+		if (maxActiveEntries < initialEntries) 
+			throw new ValidationException ("maxActiveEntries < initialEntries");
+		if (maxActiveEntries < maxIdleEntries)
+			throw new ValidationException("maxActiveEntries < maxIdleEntries");
+		
+		if (maxActiveEntries < minIdleEntries)
+			throw new ValidationException("maxActiveEntries < minIdleEntries");
+		if (maxIdleEntries < minIdleEntries) 
+			throw new ValidationException("maxIdleEntries < minIdleEntries");
 	}
 		
 	public boolean isInvalidateInBackground() {

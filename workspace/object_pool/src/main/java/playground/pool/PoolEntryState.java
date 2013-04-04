@@ -7,10 +7,15 @@ import java.util.concurrent.atomic.AtomicLong;
  * threadsafe
  * */
 public class PoolEntryState {
+	private final long createdAt = System.currentTimeMillis();
 	
 	private AtomicLong lastValidatedAt = new AtomicLong(System.currentTimeMillis());
 	
 	private AtomicBoolean valid = new AtomicBoolean(true);
+	
+	public long getCreatedAt() {
+		return createdAt;
+	}
 	
 	public long getLastValidatedAt() {
 		return lastValidatedAt.longValue();

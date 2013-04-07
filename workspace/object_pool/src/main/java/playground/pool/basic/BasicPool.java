@@ -4,15 +4,20 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import playground.pool.PoolException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import playground.pool.IdleEntriesQueue;
 import playground.pool.Pool;
 import playground.pool.PoolConfig;
 import playground.pool.PoolEntry;
 import playground.pool.PoolEntryFactory;
+import playground.pool.PoolException;
+import playground.pool.util.PoolLoggerMarkerFactory;
 
 
 public class BasicPool<T> implements Pool<T> {
+	private static final Logger logger = LoggerFactory.getLogger(BasicPool.class);
 	
 	private final PoolConfig config ;
 	private final PoolEntryFactory<T> entryFactory;
@@ -33,8 +38,8 @@ public class BasicPool<T> implements Pool<T> {
 			try {
 				idleEntries.add(createIdleEntry());
 			} catch (Exception e) {
-				// TODO Logger
-				e.printStackTrace();
+				logger.warn(PoolLoggerMarkerFactory.getMarker(), 
+						"Failed to create initial pool entry.", e);
 			}
 		}
 	}

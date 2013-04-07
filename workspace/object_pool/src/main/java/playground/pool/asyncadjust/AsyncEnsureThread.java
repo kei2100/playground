@@ -5,12 +5,18 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import playground.pool.PoolConfig;
 import playground.pool.PoolEntry;
 import playground.pool.PoolEntryFactory;
 import playground.pool.util.NameableDaemonThreadFactory;
+import playground.pool.util.PoolLoggerMarkerFactory;
 
 class AsyncEnsureThread<T> {
+	private static final Logger logger = LoggerFactory.getLogger(AsyncEnsureThread.class);
+	
 	private final PoolConfig config;
 	private final AsyncAdjustIdleEntriesQueue<T> queue;
 	private final PoolEntryFactory<T> entryFactory;
@@ -78,8 +84,8 @@ class AsyncEnsureThread<T> {
 				PoolEntry<T> entry = entryFactory.createPoolEntry();
 				queue.add(entry);
 			} catch (Exception e) {
-				// TODO Logger
-				e.printStackTrace();
+				logger.warn(PoolLoggerMarkerFactory.getMarker(), 
+						"Create PoolEntry throws Exception.", e);				
 			}
 		}
 	}

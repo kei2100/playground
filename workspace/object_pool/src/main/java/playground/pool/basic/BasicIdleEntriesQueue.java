@@ -3,12 +3,17 @@ package playground.pool.basic;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import playground.pool.IdleEntriesQueue;
 import playground.pool.PoolConfig;
 import playground.pool.PoolEntry;
+import playground.pool.util.PoolLoggerMarkerFactory;
 
 
 public class BasicIdleEntriesQueue<T> implements IdleEntriesQueue<T>{
+	private static final Logger logger = LoggerFactory.getLogger(BasicIdleEntriesQueue.class);
 	
 	private final PoolConfig config;
 	
@@ -40,8 +45,8 @@ public class BasicIdleEntriesQueue<T> implements IdleEntriesQueue<T>{
 			try {
 				entry.invalidate();
 			} catch (Exception e) {
-				// TODO Logger
-				e.printStackTrace();
+				logger.warn(PoolLoggerMarkerFactory.getMarker(), 
+						"Invalidate PoolEntry throws Exception.", e);
 			}
 		} else {
 			idleEntries.add(entry);

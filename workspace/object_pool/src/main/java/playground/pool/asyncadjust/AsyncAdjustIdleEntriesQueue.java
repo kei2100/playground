@@ -4,12 +4,17 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import playground.pool.IdleEntriesQueue;
 import playground.pool.PoolConfig;
 import playground.pool.PoolEntry;
 import playground.pool.PoolEntryFactory;
+import playground.pool.util.PoolLoggerMarkerFactory;
 
-public class AsyncAdjustIdleEntriesQueue<T> implements IdleEntriesQueue<T> {
+public class AsyncAdjustIdleEntriesQueue<T> implements IdleEntriesQueue<T> {	
+	private static final Logger logger = LoggerFactory.getLogger(AsyncAdjustIdleEntriesQueue.class);
 
 	private final PoolConfig config;
 	
@@ -86,8 +91,8 @@ public class AsyncAdjustIdleEntriesQueue<T> implements IdleEntriesQueue<T> {
 			try {
 				entry.invalidate();
 			} catch (Exception e) {
-				// TODO Logger
-				e.printStackTrace();
+				logger.warn(PoolLoggerMarkerFactory.getMarker(), 
+						"Invalidate PoolEntry throws Exception.", e);
 			}
 		} else {
 			idleEntriesToBeInvalidate.add(entry);

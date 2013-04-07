@@ -1,10 +1,15 @@
 package playground.pool.validatable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import playground.pool.PoolEntry;
 import playground.pool.ValidationConfig;
+import playground.pool.util.PoolLoggerMarkerFactory;
 
 class ValidationHelper {
-		
+	private static final Logger logger = LoggerFactory.getLogger(ValidationHelper.class);
+	
 	static <T> boolean validate(ValidationConfig config, PoolEntry<T> entry) {
 		long lastValidatedAt = entry.getState().getLastValidatedAt();
 		
@@ -42,8 +47,9 @@ class ValidationHelper {
 			boolean validateSuccessful = entry.validate();
 			return validateSuccessful;
 		} catch (Exception e) {
-			// TODO Logger
-			e.printStackTrace();
+			logger.warn(PoolLoggerMarkerFactory.getMarker(), 
+					"Failed to validate pool entry. Pool entry will be invalidate. ", e);
+			
 			innerInvalidate(entry);
 			return false;
 		}
@@ -53,8 +59,8 @@ class ValidationHelper {
 		try {
 			entry.invalidate();
 		} catch (Exception e) {
-			// TODO Logger
-			e.printStackTrace();
+			logger.warn(PoolLoggerMarkerFactory.getMarker(), 
+					"Failed to invalidate pool entry.", e);
 		}
 	}
 	

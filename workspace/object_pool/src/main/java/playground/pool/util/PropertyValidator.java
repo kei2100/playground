@@ -6,25 +6,31 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public enum PropertyValidator {
-
+	
 	INSTANCE;
 	
+	private static final Logger logger = LoggerFactory.getLogger(PropertyValidator.class);
 	private Validator validator;
 	
 	private PropertyValidator() {
 		try {
 			validator = Validation.buildDefaultValidatorFactory().getValidator();
 		} catch (Exception e) {
-			// TODO Logger
-			e.printStackTrace();
+			Logger logger = LoggerFactory.getLogger(PropertyValidator.class);
+			logger.warn(PoolLoggerMarkerFactory.getMarker(), 
+					"Failed to get javax.validation.Validator implementation. Can not validation.", e);
 		}
 	}
 	
 	public <T> void validate(T object) throws PropertyValidationException {
 		if (validator == null) {
-			// TODO warning Logger
+			logger.warn(PoolLoggerMarkerFactory.getMarker(), 
+					"Can not validation. validator is not set.");
 			return;
 		}
 		

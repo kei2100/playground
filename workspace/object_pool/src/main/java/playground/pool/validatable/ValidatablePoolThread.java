@@ -7,14 +7,19 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import playground.pool.Pool;
 import playground.pool.PoolEntry;
 import playground.pool.PoolException;
 import playground.pool.ValidationConfig;
 import playground.pool.util.NameableDaemonThreadFactory;
+import playground.pool.util.PoolLoggerMarkerFactory;
 
 class ValidatablePoolThread<T> {
-
+	private static final Logger logger = LoggerFactory.getLogger(ValidatablePoolThread.class);
+	
 	private final Pool<T> pool;
 	private final ValidationConfig config;
 	
@@ -65,8 +70,6 @@ class ValidatablePoolThread<T> {
 			int maxIdleEntries = pool.getPoolConfig().getMaxIdleEntries();
 			alreadyValidatedCheckMap = new ConcurrentHashMap<Integer, Object>(maxIdleEntries);
 			
-			// TODO delete sysout
-			System.out.println("----------");
 			try {
 				while (true) {
 					PoolEntry<T> idleEntry = pool.tryBorrowEntry(DO_NOT_CREATE_NEW);
@@ -82,8 +85,8 @@ class ValidatablePoolThread<T> {
 					taskExecutor.submit(new ValidateTask(idleEntry));
 				}
 			} catch (PoolException e) {
-				// TODO Logger
-				e.printStackTrace();
+				logger.warn(PoolLoggerMarkerFactory.getMarker(), 
+						"Failed to borrow idle entry.", e);
 			}			
 		}
 

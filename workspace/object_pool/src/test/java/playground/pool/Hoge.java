@@ -11,14 +11,14 @@ import playground.pool.validatable.ValidatablePool;
 public class Hoge {
 	public static void main(String[] args) throws Exception {
 		PoolConfig poolConfig = new PoolConfig();
-		poolConfig.setMaxActiveEntries(5);
+		poolConfig.setMaxActiveEntries(10);
 		poolConfig.setInitialEntries(5);
 		poolConfig.setMaxIdleEntries(5);
-		poolConfig.setMinIdleEntries(2);
-		poolConfig.setInvalidateThreads(1);
-		poolConfig.setInvalidateIntervalMillis(5);
-		poolConfig.setEnsureThreads(1);
-		poolConfig.setEnsureIntervalMillis(30);
+		poolConfig.setMinIdleEntries(5);
+		poolConfig.setInvalidateThreads(3);
+		poolConfig.setInvalidateIntervalMillis(100);
+		poolConfig.setEnsureThreads(3);
+		poolConfig.setEnsureIntervalMillis(100);
 		
 		BasicPoolEntryFactory<String> entryFactory = new BasicPoolEntryFactory<String>(
 				new TestObjectFactory(), new TestObjectValidator());
@@ -30,66 +30,36 @@ public class Hoge {
 				);
 
 		ValidationConfig config = new ValidationConfig();
-		config.setTestOnBorrow(false);
-//		config.setTestIntervalMillis(3000);
-		config.setTestThreadIntervalMillis(1000);
-		config.setTestThreadInitialDelayMillis(1000);
-		config.setTestThreads(1);
+		config.setTestOnBorrow(true);
+		config.setTestIntervalMillis(3000);
+		config.setTestThreadIntervalMillis(300);
+		config.setTestThreadInitialDelayMillis(300);
+		config.setTestThreads(3);
+		config.setMaxAgeMillis(500);
 				
 		ValidatablePool<String> pool = new ValidatablePool<String>(poolbase, config);		
-		TimeUnit.SECONDS.sleep(6);
 
 		while(true) {
-		pool.borrowEntry();
-		TimeUnit.MILLISECONDS.sleep(30);
-		pool.borrowEntry();
-		TimeUnit.MILLISECONDS.sleep(30);
-		pool.borrowEntry();
-		TimeUnit.MILLISECONDS.sleep(30);
-		pool.returnEntry(entryFactory.createPoolEntry());
-		TimeUnit.MILLISECONDS.sleep(30);
-		pool.returnEntry(entryFactory.createPoolEntry());
-		TimeUnit.MILLISECONDS.sleep(30);
-		pool.borrowEntry();
-		TimeUnit.MILLISECONDS.sleep(30);
-		pool.borrowEntry();
-		TimeUnit.MILLISECONDS.sleep(30);
-		pool.returnEntry(entryFactory.createPoolEntry());
-		TimeUnit.MILLISECONDS.sleep(30);
-		pool.returnEntry(entryFactory.createPoolEntry());
-		TimeUnit.MILLISECONDS.sleep(30);
-		pool.borrowEntry();
-		TimeUnit.MILLISECONDS.sleep(30);
-		pool.returnEntry(entryFactory.createPoolEntry());
-		TimeUnit.MILLISECONDS.sleep(30);
-		pool.returnEntry(entryFactory.createPoolEntry());
-		TimeUnit.MILLISECONDS.sleep(30);
-		
-		pool.borrowEntry();
-		pool.borrowEntry();
-		pool.borrowEntry();
-		pool.borrowEntry();
-		pool.borrowEntry();
-		TimeUnit.MILLISECONDS.sleep(500);
-		
-		pool.returnEntry(entryFactory.createPoolEntry());
-		pool.returnEntry(entryFactory.createPoolEntry());
-		pool.returnEntry(entryFactory.createPoolEntry());
-		pool.returnEntry(entryFactory.createPoolEntry());
-		pool.returnEntry(entryFactory.createPoolEntry());
-		TimeUnit.MILLISECONDS.sleep(500);
-		}
-		
-		
-//		while(true) {
-//			PoolEntry<String> entry = pool.borrowEntry();
-//			pool.returnEntry(entry);
-//		}
+			PoolEntry<String> entry1 = pool.borrowEntry();
+			PoolEntry<String> entry2 = pool.borrowEntry();
+			PoolEntry<String> entry3 = pool.borrowEntry();
+			PoolEntry<String> entry4 = pool.borrowEntry();
+			PoolEntry<String> entry5 = pool.borrowEntry();
+			TimeUnit.MILLISECONDS.sleep(500);
+			
+			pool.returnEntry(entry1);
+			pool.returnEntry(entry2);
+			pool.returnEntry(entry3);
+			pool.returnEntry(entry4);
+			pool.returnEntry(entry5);
+			TimeUnit.MILLISECONDS.sleep(500);
+		}		
 	}
 	
 	public static class TestObjectFactory implements PooledObjectFactory<String> {
 		@Override
 		public String createInstance() throws Exception {
+			System.out.println("created");
 			return "created";
 		}
 	}
@@ -102,9 +72,10 @@ public class Hoge {
 		}
 
 		@Override
-		public void invalidate(String pooledObject) {
-			System.out.println("invalidate string " + pooledObject);
+		public void invalidate(String pooledObject) throws Exception{
+			System.out.println("invalidated");
 			pooledObject = null;
+			TimeUnit.MILLISECONDS.sleep(200);
 		}
 	}
 

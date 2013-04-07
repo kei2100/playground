@@ -56,13 +56,25 @@ public class BasicPool<T> implements Pool<T> {
 			throws InterruptedException, TimeoutException, PoolException {
 
 		long timeout = config.getMaxWaitMillisOnBorrow();
+		return borrowEntry(createNew, timeout, TimeUnit.MILLISECONDS);
+	}
+	
+	@Override
+	public PoolEntry<T> borrowEntry(long timeout, TimeUnit unit)
+			throws InterruptedException, TimeoutException, PoolException {
+
+		return borrowEntry(true, timeout, unit);
+	}
+	
+	@Override
+	public PoolEntry<T> borrowEntry(boolean createNew, long timeout, TimeUnit unit) 
+			throws InterruptedException, TimeoutException, PoolException {
+
 		try {
-			if (timeout == 0) {
+			if (config.isWaitUnlimitOnBorrow()) {
 				borrowingSemaphore.acquire();
 			} else {
-				boolean acquireSuccess = 
-						borrowingSemaphore.tryAcquire(timeout, TimeUnit.MILLISECONDS);
-				
+				boolean acquireSuccess = borrowingSemaphore.tryAcquire(timeout, unit);
 				if (!acquireSuccess) {
 					// pool entries all busy
 					throw new TimeoutException("borrowEntry timed out.");
@@ -73,7 +85,11 @@ public class BasicPool<T> implements Pool<T> {
 		}
 		
 		try {
-			return innerBorrowEntry(createNew);
+			PoolEntry<T> entry = innerBorrowEntry(createNew);
+			if (entry == null) {
+				borrowingSemaphore.release();
+			}
+			return entry;
 		} catch (Exception e) {
 			borrowingSemaphore.release();
 			throw new PoolException(e);
@@ -93,7 +109,11 @@ public class BasicPool<T> implements Pool<T> {
 		}
 		
 		try {
-			return innerBorrowEntry(createNew);
+			 PoolEntry<T> entry = innerBorrowEntry(createNew);
+			if (entry == null) {
+				borrowingSemaphore.release();
+			}
+			return entry;
 		} catch (Exception e) {
 			borrowingSemaphore.release();
 			throw new PoolException(e);

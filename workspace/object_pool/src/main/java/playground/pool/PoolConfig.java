@@ -2,21 +2,21 @@ package playground.pool;
 
 import javax.validation.constraints.Min;
 
-import playground.pool.util.ValidationException;
+import playground.pool.util.PropertyValidationException;
 import playground.pool.util.PropertyValidator;
 
 
 public class PoolConfig {
-	// TODO validate state
+	private static byte WAIT_UNLIMIT_ON_BORROW = 0;
+	
 	@Min(1)
 	private int maxActiveEntries = 8;
 	@Min(0)
 	private int initialEntries = 0;
 	@Min(1)
 	private int maxIdleEntries = 8;
-	// 0 is forever wait to borrow.
 	@Min(0)
-	private long maxWaitMillisOnBorrow = 1000;
+	private long maxWaitMillisOnBorrow = 1000;	// 0 is forever wait to borrow.
 	
 	@Min(0)
 	private int invalidateThreads = 0;
@@ -32,27 +32,31 @@ public class PoolConfig {
 	@Min(1)
 	private long ensureIntervalMillis = 1000;
 	
-	public void validateState() throws ValidationException {
+	public void validateState() throws PropertyValidationException {
 		validatePropValues();
 		validatePropCorrelation();
 	}
 	
-	private void validatePropValues() throws ValidationException {
+	private void validatePropValues() throws PropertyValidationException {
 		PropertyValidator.INSTANCE.validate(this);
 	}
 	
-	private void validatePropCorrelation() throws ValidationException {
+	private void validatePropCorrelation() throws PropertyValidationException {
 		if (maxActiveEntries < initialEntries) 
-			throw new ValidationException ("maxActiveEntries < initialEntries");
+			throw new PropertyValidationException ("maxActiveEntries < initialEntries");
 		if (maxActiveEntries < maxIdleEntries)
-			throw new ValidationException("maxActiveEntries < maxIdleEntries");
+			throw new PropertyValidationException("maxActiveEntries < maxIdleEntries");
 		
 		if (maxActiveEntries < minIdleEntries)
-			throw new ValidationException("maxActiveEntries < minIdleEntries");
+			throw new PropertyValidationException("maxActiveEntries < minIdleEntries");
 		if (maxIdleEntries < minIdleEntries) 
-			throw new ValidationException("maxIdleEntries < minIdleEntries");
+			throw new PropertyValidationException("maxIdleEntries < minIdleEntries");
 	}
 		
+	public boolean isWaitUnlimitOnBorrow() {
+		return maxWaitMillisOnBorrow == WAIT_UNLIMIT_ON_BORROW;
+	}
+	
 	public boolean isInvalidateInBackground() {
 		return (invalidateThreads > 0);
 	}

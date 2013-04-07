@@ -1,5 +1,8 @@
 package playground.pool.validatable;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import playground.pool.Pool;
@@ -8,17 +11,19 @@ import playground.pool.PoolEntry;
 import playground.pool.PoolException;
 import playground.pool.ValidationConfig;
 
-
 public class ValidatablePool<T> implements Pool<T> {
 
 	private final Pool<T> delegate;
-	private final ValidationConfig config;
+	private final List<ValidatablePoolListener<T>> listeners; 
 	private ValidatablePoolThread<T> validationThread;
 	
 	public ValidatablePool(Pool<T> delegate, ValidationConfig config) {
 		this.delegate = delegate;
-		this.config = config;
-				
+		
+		this.listeners = new ArrayList<ValidatablePoolListener<T>>();
+		this.listeners.add(new CheckAgeExpiredListener<T>(delegate, config));
+		this.listeners.add(new ValidatePoolEntryListener<T>(delegate, config));
+		
 		if (config.isTestInBackground()) {
 			validationThread = new ValidatablePoolThread<T>(delegate, config);
 			validationThread.scheduleBackgroundValidate();
@@ -41,11 +46,28 @@ public class ValidatablePool<T> implements Pool<T> {
 	public PoolEntry<T> borrowEntry(boolean createNew) 
 			throws InterruptedException, TimeoutException, PoolException {
 
-		PoolEntry<T> entry = delegate.borrowEntry(createNew);
+		long timeout = getPoolConfig().getMaxWaitMillisOnBorrow();
+		return borrowEntry(createNew, timeout, TimeUnit.MILLISECONDS);
+	}
+	
+	@Override
+	public PoolEntry<T> borrowEntry(long timeout, TimeUnit unit)
+			throws InterruptedException, TimeoutException, PoolException {
+
+		return borrowEntry(true, timeout, unit);
+	}
+	@Override
+	public PoolEntry<T> borrowEntry(boolean createNew, long timeout, TimeUnit unit) 
+			throws InterruptedException, TimeoutException, PoolException {
+		
+		long methodStartedAt = System.currentTimeMillis();
+
+		PoolEntry<T> entry = delegate.borrowEntry(createNew, timeout, unit);
 		if (entry == null) {
 			return null;
 		}
-		return afterBorrowEntry(entry);
+		long elapsedMillis = System.currentTimeMillis() - methodStartedAt;
+		return afterBorrowEntry(entry, createNew, elapsedMillis);
 	}
 	
 	@Override
@@ -60,32 +82,39 @@ public class ValidatablePool<T> implements Pool<T> {
 		if (entry == null) {
 			return null;
 		}
-		return afterBorrowEntry(entry);
+		return afterTryBorrowEntry(entry, createNew);
 	}
 
-	protected PoolEntry<T> afterBorrowEntry(PoolEntry<T> entry) throws PoolException {
-		if (!config.isTestOnBorrow()) {
-			return entry;
-		}
+	private PoolEntry<T> afterBorrowEntry(PoolEntry<T> entry, boolean createNew, long elapsedMillis) 
+			throws PoolException, InterruptedException, TimeoutException {
 		
-		boolean validateSuccessful = ValidationHelper.validate(config, entry);
-		if (validateSuccessful) {
-			return entry;
-		} else {
-			delegate.returnEntry(entry);
-			throw new PoolException("PoolEntry is invalid.");
+		for (ValidatablePoolListener<T> listener : listeners) {
+			entry = listener.afterBorrowEntry(entry, createNew, elapsedMillis);
 		}
+		return entry;
+	}
+
+	private PoolEntry<T> afterTryBorrowEntry(PoolEntry<T> entry, boolean createNew) throws PoolException {
+		for (ValidatablePoolListener<T> listener : listeners) {
+			entry = listener.afterTryBorrowEntry(entry, createNew);
+		}
+		return entry;
 	}
 	
 	@Override
 	public void returnEntry(PoolEntry<T> entry) throws NullPointerException {
-		entry = beforeReturnEntry(entry);
-		delegate.returnEntry(entry);
+		if (entry == null) throw new NullPointerException();
+
+		try {
+			entry = beforeReturnEntry(entry);
+		} finally {
+			delegate.returnEntry(entry);
+		}
 	}
 
-	protected PoolEntry<T> beforeReturnEntry(PoolEntry<T> entry) {
-		if (config.isTestOnReturn()) {
-			ValidationHelper.validate(config, entry);
+	private PoolEntry<T> beforeReturnEntry(PoolEntry<T> entry) {
+		for (ValidatablePoolListener<T> listener : listeners) {
+			entry = listener.beforeReturnEntry(entry);
 		}
 		return entry;
 	}

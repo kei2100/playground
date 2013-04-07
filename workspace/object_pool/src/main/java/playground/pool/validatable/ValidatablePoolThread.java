@@ -103,7 +103,11 @@ class ValidatablePoolThread<T> {
 		
 		@Override
 		public void run() {
-			ValidationHelper.validate(config, idleEntry);
+			ValidationHelper.invalidateIfAgeExpired(config, idleEntry);
+			// has not yet exceeded maxAge. 
+			if (idleEntry.getState().isValid()) {
+				ValidationHelper.validate(config, idleEntry);
+			}
 			pool.returnEntry(idleEntry);
 		}
 	}

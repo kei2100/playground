@@ -3,9 +3,11 @@ package playground.pool;
 import javax.validation.constraints.Min;
 
 import playground.pool.util.PropertyValidator;
-import playground.pool.util.ValidationException;
+import playground.pool.util.PropertyValidationException;
 
 public class ValidationConfig {
+	private static byte MAX_AGE_UNLIMIT = 0;
+	
 	private boolean testOnBorrow = true;
 	private boolean testOnReturn = false;
 	@Min(0)
@@ -20,12 +22,16 @@ public class ValidationConfig {
 	@Min(1)
 	private long testThreadIntervalMillis = 1000 * 60 * 10;	// default 10min
 	
-	public void validateState() throws ValidationException {
+	public void validateState() throws PropertyValidationException {
 		validatePropValues();
 	}
 	
-	public void validatePropValues() throws ValidationException {
+	public void validatePropValues() throws PropertyValidationException {
 		PropertyValidator.INSTANCE.validate(this);
+	}
+	
+	public boolean isMaxAgeUnlimit() {
+		return maxAgeMillis == MAX_AGE_UNLIMIT;
 	}
 	
 	public boolean isTestWithInterval() {

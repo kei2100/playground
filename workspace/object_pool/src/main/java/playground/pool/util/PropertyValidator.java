@@ -22,7 +22,7 @@ public enum PropertyValidator {
 		}
 	}
 	
-	public <T> void validate(T object) throws ValidationException {
+	public <T> void validate(T object) throws PropertyValidationException {
 		if (validator == null) {
 			// TODO warning Logger
 			return;
@@ -39,6 +39,6 @@ public enum PropertyValidator {
 			        .append(violation.getMessage())
 			        .append(".");
 		}
-		throw new ValidationException(messages.toString());
+		throw new PropertyValidationException(messages.toString());
 	}
 }

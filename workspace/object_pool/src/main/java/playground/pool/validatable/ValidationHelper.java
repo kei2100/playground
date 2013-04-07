@@ -4,12 +4,12 @@ import playground.pool.PoolEntry;
 import playground.pool.ValidationConfig;
 
 class ValidationHelper {
-
+		
 	static <T> boolean validate(ValidationConfig config, PoolEntry<T> entry) {
 		long lastValidatedAt = entry.getState().getLastValidatedAt();
 		
 		if (config.isTestWithInterval()) {
-			if (!intervalElapses(config, lastValidatedAt)) {
+			if (!isIntervalElapses(config, lastValidatedAt)) {
 				return true;
 			}
 		}
@@ -20,6 +20,20 @@ class ValidationHelper {
 		} else {
 			innerInvalidate(entry);
 			return false;
+		}
+	}
+	
+	static <T> void invalidateIfAgeExpired(ValidationConfig config, PoolEntry<T> entry) {
+		if (config.isMaxAgeUnlimit()) {
+			return;
+		}
+		
+		long createdAt = entry.getState().getCreatedAt();
+		long maxAgeMillis = config.getMaxAgeMillis();
+				
+		boolean hasAgeExpired = (System.currentTimeMillis() - createdAt) > maxAgeMillis;
+		if (hasAgeExpired) {
+			innerInvalidate(entry);
 		}
 	}
 
@@ -44,7 +58,7 @@ class ValidationHelper {
 		}
 	}
 	
-	static boolean intervalElapses(ValidationConfig config, long lastValidatedAt) {				
+	private static boolean isIntervalElapses(ValidationConfig config, long lastValidatedAt) {				
 		long testIntervalMillis = config.getTestIntervalMillis();
 		long now = System.currentTimeMillis();
 		

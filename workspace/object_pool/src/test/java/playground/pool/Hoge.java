@@ -31,11 +31,11 @@ public class Hoge {
 
 		ValidationConfig config = new ValidationConfig();
 		config.setTestOnBorrow(true);
-		config.setTestIntervalMillis(3000);
+		config.setTestIntervalMillis(500);
 		config.setTestThreadIntervalMillis(300);
 		config.setTestThreadInitialDelayMillis(300);
 		config.setTestThreads(3);
-		config.setMaxAgeMillis(500);
+		config.setMaxAgeMillis(1000);
 				
 		ValidatablePool<String> pool = new ValidatablePool<String>(poolbase, config);		
 

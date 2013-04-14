@@ -37,7 +37,9 @@ public class BasicIdleEntriesQueue<T> implements IdleEntriesQueue<T>{
 	}
 	
 	@Override
-	public void add(PoolEntry<T> entry) {
+	public void add(PoolEntry<T> entry) throws NullPointerException {
+		if (entry == null) throw new NullPointerException("entry is null.");
+		
 		int idleCount = idleEntriesCount.incrementAndGet();
 
 		if (idleCount > config.getMaxIdleEntries()) {

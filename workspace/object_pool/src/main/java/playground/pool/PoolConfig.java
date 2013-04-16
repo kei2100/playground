@@ -5,7 +5,9 @@ import javax.validation.constraints.Min;
 import playground.pool.util.PropertyValidationException;
 import playground.pool.util.PropertyValidator;
 
-
+/**
+ * Configuration of {@link Pool}. 
+ * */
 public class PoolConfig {
 	private static byte WAIT_UNLIMIT_ON_BORROW = 0;
 	

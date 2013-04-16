@@ -2,11 +2,6 @@ package playground.pool;
 
 import java.util.concurrent.TimeUnit;
 
-import playground.pool.asyncadjust.AsyncAdjustIdleEntriesQueue;
-import playground.pool.basic.BasicPool;
-import playground.pool.basic.BasicPoolEntryFactory;
-import playground.pool.validatable.ValidatablePool;
-
 
 public class Hoge {
 	public static void main(String[] args) throws Exception {
@@ -20,14 +15,6 @@ public class Hoge {
 		poolConfig.setEnsureThreads(3);
 		poolConfig.setEnsureIntervalMillis(100);
 		
-		BasicPoolEntryFactory<String> entryFactory = new BasicPoolEntryFactory<String>(
-				new TestObjectFactory(), new TestObjectValidator());
-		
-		BasicPool<String> poolbase = new BasicPool<String>(
-				poolConfig,
-				new AsyncAdjustIdleEntriesQueue<String>(poolConfig, entryFactory),
-				entryFactory
-				);
 
 		ValidationConfig config = new ValidationConfig();
 		config.setTestOnBorrow(true);
@@ -37,11 +24,18 @@ public class Hoge {
 		config.setTestThreads(3);
 		config.setMaxAgeMillis(1000);
 				
-		ValidatablePool<String> pool = new ValidatablePool<String>(poolbase, config);		
+		PoolFactory<String> poolFactory = 
+				new PoolFactory<String>(poolConfig, config, new TestObjectFactory(), new TestObjectValidator());
+		
+		Pool<String> pool = poolFactory.createInstance();
 
 		while(true) {
 			PoolEntry<String> entry1 = pool.borrowEntry();
+			entry1.getObject();
+			
 			PoolEntry<String> entry2 = pool.borrowEntry();
+			entry2.getObject();
+			
 			PoolEntry<String> entry3 = pool.borrowEntry();
 			PoolEntry<String> entry4 = pool.borrowEntry();
 			PoolEntry<String> entry5 = pool.borrowEntry();

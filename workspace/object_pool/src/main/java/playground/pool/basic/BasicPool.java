@@ -25,8 +25,7 @@ public class BasicPool<T> implements Pool<T> {
 	
 	private final Semaphore borrowingSemaphore;
 		
-	public BasicPool(PoolConfig config, IdleEntriesQueue<T> idleEntries, PoolEntryFactory<T> entryFactory)
-	throws PoolException {
+	public BasicPool(PoolConfig config, IdleEntriesQueue<T> idleEntries, PoolEntryFactory<T> entryFactory) {
 		this.config = config;
 		this.idleEntries = idleEntries;
 		this.entryFactory = entryFactory;

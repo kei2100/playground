@@ -5,7 +5,11 @@ import javax.validation.constraints.Min;
 import playground.pool.util.PropertyValidator;
 import playground.pool.util.PropertyValidationException;
 
+/**
+ * Configuration of {@link PoolEntry} validation.
+ * */
 public class ValidationConfig {
+	
 	private static byte TEST_INTERVAL_NOT_TAKEN = 0;
 
 	private static byte MAX_AGE_UNLIMIT = 0;
@@ -69,7 +73,7 @@ public class ValidationConfig {
 		validatePropValues();
 	}
 	
-	public void validatePropValues() throws PropertyValidationException {
+	private void validatePropValues() throws PropertyValidationException {
 		PropertyValidator.INSTANCE.validate(this);
 	}
 	

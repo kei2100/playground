@@ -1,32 +1,18 @@
 package playground.pool.basic;
 
-import org.junit.Test;
 import static org.junit.Assert.*;
+
+import org.junit.Test;
 
 import playground.pool.PoolConfig;
 import playground.pool.PoolEntry;
 import playground.pool.util.SpyObject;
-import playground.pool.util.SpyObjectValidator;
 
 public class BasicIdleEntriesQueueTest {
 	
-	private static final SpyObjectValidator validator = new SpyObjectValidator();
-	
-	private static BasicIdleEntriesQueue<SpyObject> createQueue() {
-		return createQueue(new PoolConfig());
-	}
-	
-	private static BasicIdleEntriesQueue<SpyObject> createQueue(PoolConfig config) {
-		return new BasicIdleEntriesQueue<SpyObject>(config);
-	}
-	
-	private static BasicPoolEntry<SpyObject> createPoolEntry() {
-		return new BasicPoolEntry<SpyObject>(new SpyObject(), validator);
-	}
-	
 	@Test(expected = NullPointerException.class)
 	public void add_追加エントリがnullの場合() {
-		BasicIdleEntriesQueue<SpyObject> queue = createQueue();
+		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class);
 		queue.add(null);
 	}
 	
@@ -34,8 +20,8 @@ public class BasicIdleEntriesQueueTest {
 	public void add_maxIdleEntries数を超えない場合() {
 		PoolConfig config = new PoolConfig();
 		config.setMaxIdleEntries(1);
-		BasicIdleEntriesQueue<SpyObject> queue = createQueue(config);
-		BasicPoolEntry<SpyObject> entry = createPoolEntry();
+		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class, config);
+		BasicPoolEntry<SpyObject> entry = BasicPackageTestUtil.createPoolEntry(SpyObject.class);
 		
 		queue.add(entry);
 		int actualCount = queue.getIdleEntriesCount();
@@ -48,9 +34,9 @@ public class BasicIdleEntriesQueueTest {
 	public void add_maxIdleEntries数を超える場合() {
 		PoolConfig config = new PoolConfig();
 		config.setMaxIdleEntries(1);
-		BasicIdleEntriesQueue<SpyObject> queue = createQueue(config);
-		BasicPoolEntry<SpyObject> entry1 = createPoolEntry();
-		BasicPoolEntry<SpyObject> entry2 = createPoolEntry();
+		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class, config);
+		BasicPoolEntry<SpyObject> entry1 = BasicPackageTestUtil.createPoolEntry(SpyObject.class);
+		BasicPoolEntry<SpyObject> entry2 = BasicPackageTestUtil.createPoolEntry(SpyObject.class);
 		
 		queue.add(entry1);
 		queue.add(entry2);
@@ -63,7 +49,7 @@ public class BasicIdleEntriesQueueTest {
 	
 	@Test
 	public void poll_アイドルエントリが空の場合() {
-		BasicIdleEntriesQueue<SpyObject> queue = createQueue();
+		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class);
 		
 		PoolEntry<SpyObject> actualObject = queue.poll();
 		int actualCount = queue.getIdleEntriesCount();
@@ -74,10 +60,10 @@ public class BasicIdleEntriesQueueTest {
 	
 	@Test
 	public void poll_アイドルエントリが空でない場合() {
-		BasicIdleEntriesQueue<SpyObject> queue = createQueue();
+		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class);
 		
-		queue.add(createPoolEntry());
-		queue.add(createPoolEntry());
+		queue.add(BasicPackageTestUtil.createPoolEntry(SpyObject.class));
+		queue.add(BasicPackageTestUtil.createPoolEntry(SpyObject.class));
 		
 		PoolEntry<SpyObject> actualObject = queue.poll();
 		int actualCount = queue.getIdleEntriesCount();

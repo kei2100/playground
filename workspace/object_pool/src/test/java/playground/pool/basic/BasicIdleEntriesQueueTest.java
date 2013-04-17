@@ -2,6 +2,14 @@ package playground.pool.basic;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Test;
 
 import playground.pool.PoolConfig;
@@ -70,5 +78,45 @@ public class BasicIdleEntriesQueueTest {
 		
 		assertNotNull(actualObject);
 		assertEquals(1, actualCount);
+	}
+	
+	@Test
+	public void add_pool_マルチスレッドで繰り返す() throws Exception {
+		PoolConfig config = new PoolConfig();
+		config.setMaxIdleEntries(5);	// 5 is fixed num. Don't touch.
+		
+		final BasicIdleEntriesQueue<SpyObject> queue =
+				BasicPackageTestUtil.createQueue(SpyObject.class, config);
+		
+		ExecutorService es = Executors.newFixedThreadPool(5);	// 5 is fixed num. Don't touch.
+		List<Future<PoolEntry<SpyObject>>> futures = new ArrayList<Future<PoolEntry<SpyObject>>>();
+		
+		for (int i = 0; i < 50; i++) {
+			Future<PoolEntry<SpyObject>> future = es.submit(
+				new Callable<PoolEntry<SpyObject>>() {
+					@Override
+					public PoolEntry<SpyObject> call() throws Exception {
+						queue.add(BasicPackageTestUtil.createPoolEntry(SpyObject.class));
+						TimeUnit.MILLISECONDS.sleep(1);
+						return queue.poll();
+					}
+				}
+			);
+			futures.add(future);
+		}
+		
+		try {
+			for (Future<PoolEntry<SpyObject>> future : futures) {
+				PoolEntry<SpyObject> entry = future.get();
+				
+				boolean actualValid = entry.getObject().isValid();
+				assertTrue(actualValid);
+			}
+
+			int actualCount = queue.getIdleEntriesCount();
+			assertEquals(0, actualCount);
+		} finally {
+			es.shutdown();
+		}
 	}
 }

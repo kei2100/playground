@@ -53,5 +53,9 @@ public class BasicIdleEntriesQueue<T> implements IdleEntriesQueue<T>{
 		} else {
 			idleEntries.add(entry);
 		}
-	}	
+	}
+	
+	int getIdleEntriesCount() {
+		return idleEntriesCount.intValue();
+	}
 }

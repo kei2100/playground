@@ -83,12 +83,12 @@ public class BasicIdleEntriesQueueTest {
 	@Test
 	public void add_pool_マルチスレッドで繰り返す() throws Exception {
 		PoolConfig config = new PoolConfig();
-		config.setMaxIdleEntries(5);	// 5 is fixed num. Don't touch.
+		config.setMaxIdleEntries(5);	// 5 is common num with pool size.
 		
 		final BasicIdleEntriesQueue<SpyObject> queue =
 				BasicPackageTestUtil.createQueue(SpyObject.class, config);
 		
-		ExecutorService es = Executors.newFixedThreadPool(5);	// 5 is fixed num. Don't touch.
+		ExecutorService es = Executors.newFixedThreadPool(5);	// 5 is common num with maxIdleEntries.
 		List<Future<PoolEntry<SpyObject>>> futures = new ArrayList<Future<PoolEntry<SpyObject>>>();
 		
 		for (int i = 0; i < 50; i++) {

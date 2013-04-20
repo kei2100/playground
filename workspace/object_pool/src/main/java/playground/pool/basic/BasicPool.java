@@ -130,6 +130,8 @@ public class BasicPool<T> implements Pool<T> {
 	
 	@Override
 	public void returnEntry(PoolEntry<T> entry) throws NullPointerException {
+		if (entry == null) throw new NullPointerException("entry is null");
+		
 		try{
 			idleEntries.offer(entry);
 		} finally { 
@@ -140,7 +142,7 @@ public class BasicPool<T> implements Pool<T> {
 	/*
 	 * This method is typically used for debugging and testing purposes.
 	 * */
-	int availablePermits() {
+	public int availablePermits() {
 		return borrowingSemaphore.availablePermits();
 	}	
 }

@@ -10,6 +10,7 @@ import playground.pool.PoolConfig;
 import playground.pool.PoolEntry;
 import playground.pool.PoolException;
 import playground.pool.ValidationConfig;
+import playground.pool.basic.BasicPool;
 
 public class ValidatablePool<T> implements Pool<T> {
 
@@ -29,6 +30,22 @@ public class ValidatablePool<T> implements Pool<T> {
 			validationThread.scheduleBackgroundValidate();
 		}		
 	}
+	
+	ValidatablePool(Pool<T> delegate, ValidationConfig config, List<ValidatablePoolListener<T>> listeners) {
+		this.delegate = delegate;
+		
+		if (listeners == null) {
+			this.listeners = new ArrayList<ValidatablePoolListener<T>>();
+		} else {
+			this.listeners = listeners;
+		}
+
+		if (config.isTestInBackground()) {
+			validationThread = new ValidatablePoolThread<T>(delegate, config);
+			validationThread.scheduleBackgroundValidate();
+		}
+	}
+	
 	
 	@Override
 	public PoolConfig getPoolConfig() {
@@ -118,4 +135,16 @@ public class ValidatablePool<T> implements Pool<T> {
 		}
 		return entry;
 	}
+	
+	/*
+	 * This method is typically used for debugging and testing purposes.
+	 * */
+	public int availablePermits() {
+		if (delegate instanceof BasicPool) {
+			return ((BasicPool<T>) delegate).availablePermits();
+		}
+		
+		throw new UnsupportedOperationException();
+	}	
+
 }

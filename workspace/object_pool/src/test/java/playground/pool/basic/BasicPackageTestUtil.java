@@ -9,9 +9,9 @@ import playground.pool.util.SpyObject;
 import playground.pool.util.SpyObjectFactory;
 import playground.pool.util.SpyObjectValidator;
 
-class BasicPackageTestUtil {
+public class BasicPackageTestUtil {
 	
-	static <T> BasicPoolEntry<T> createPoolEntry(Class<T> pooledClass) {
+	public static <T> BasicPoolEntry<T> createPoolEntry(Class<T> pooledClass) {
 		T pooledInstance = createPooledObject(pooledClass);
 		PooledObjectValidator<T> validator = createPooledObjectValidator(pooledClass);
 		
@@ -44,37 +44,37 @@ class BasicPackageTestUtil {
 		throw new IllegalArgumentException();
 	}
 	
-	static <T> BasicIdleEntriesQueue<T> createQueue(Class<T> pooledClass) {
+	public static <T> BasicIdleEntriesQueue<T> createQueue(Class<T> pooledClass) {
 		return createQueue(pooledClass, new PoolConfig());
 	}
 	
-	static <T> BasicIdleEntriesQueue<T> createQueue(Class<T> pooledClass, PoolConfig config) {
+	public static <T> BasicIdleEntriesQueue<T> createQueue(Class<T> pooledClass, PoolConfig config) {
 		return new BasicIdleEntriesQueue<T>(config);
 	}
 	
-	static <T> BasicPool<T> createPool(Class<T> pooledClass, PoolConfig config) {
+	public static <T> BasicPool<T> createPool(Class<T> pooledClass, PoolConfig config) {
 		return createPool(pooledClass, config, createQueue(pooledClass, config));
 	}
 	
-	static <T> BasicPool<T> createPool(Class<T> pooledClass, PoolConfig config, IdleEntriesQueue<T> queue) {
+	public static <T> BasicPool<T> createPool(Class<T> pooledClass, PoolConfig config, IdleEntriesQueue<T> queue) {
 		return 
 			new BasicPool<T>(config, queue, createPoolEntryFactory(pooledClass));
 	}
 	
-	static <T> PoolEntryFactory<T> createPoolEntryFactory(Class<T> pooledClass) {
+	public static <T> PoolEntryFactory<T> createPoolEntryFactory(Class<T> pooledClass) {
 		PooledObjectFactory<T> objectFactory = createPooledObjectFactory(pooledClass);
 		PooledObjectValidator<T> objectValidator = createPooledObjectValidator(pooledClass);
 		
 		return createPoolEntryFactory(objectFactory, objectValidator);
 	}
 	
-	static <T> PoolEntryFactory<T> createPoolEntryFactory(Class<T> pooledClass, PooledObjectFactory<T> objectFactory) {
+	public static <T> PoolEntryFactory<T> createPoolEntryFactory(Class<T> pooledClass, PooledObjectFactory<T> objectFactory) {
 		PooledObjectValidator<T> objectValidator = createPooledObjectValidator(pooledClass);
 
 		return createPoolEntryFactory(objectFactory, objectValidator);
 	}
 	
-	static <T> PoolEntryFactory<T> createPoolEntryFactory(
+	public static <T> PoolEntryFactory<T> createPoolEntryFactory(
 			PooledObjectFactory<T> objectFactory, PooledObjectValidator<T> objectValidator) {
 		return new BasicPoolEntryFactory<T>(objectFactory, objectValidator);
 	}

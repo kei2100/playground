@@ -49,7 +49,7 @@ public class BasicIdleEntriesQueue<T> implements IdleEntriesQueue<T>{
 	/*
 	 * This method is typically used for debugging and testing purposes.
 	 * */	
-	int getIdleEntriesCount() {
+	public int getIdleEntriesCount() {
 		return idleEntries.size();
 	}
 }

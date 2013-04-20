@@ -77,6 +77,7 @@ public class AsyncAdjustIdleEntriesQueue<T> implements IdleEntriesQueue<T> {
 	@Override
 	public boolean offer(PoolEntry<T> entry) throws NullPointerException {
 		if (entry == null) throw new NullPointerException("entry is null.");
+		if (!entry.getState().isValid()) return false;
 		
 		int idleCount = idleEntriesCount.incrementAndGet();
 		

@@ -26,6 +26,9 @@ public class BasicIdleEntriesQueue<T> implements IdleEntriesQueue<T>{
 	
 	@Override
 	public boolean offer(PoolEntry<T> entry) throws NullPointerException {
+		if (entry == null) throw new NullPointerException("entry is null.");
+		if (!entry.getState().isValid()) return false;		
+		
 		boolean offerSuccessful = idleEntries.offer(entry);
 		if (!offerSuccessful) {
 			invalidateEntry(entry);
@@ -41,5 +44,12 @@ public class BasicIdleEntriesQueue<T> implements IdleEntriesQueue<T>{
 			logger.warn(PoolLoggerMarkerFactory.getMarker(), 
 					"Invalidate PoolEntry throws Exception.", e);
 		}
-	}	
+	}
+	
+	/*
+	 * This method is typically used for debugging and testing purposes.
+	 * */	
+	int getIdleEntriesCount() {
+		return idleEntries.size();
+	}
 }

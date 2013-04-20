@@ -18,7 +18,9 @@ public interface IdleEntriesQueue<T> {
 	/**
 	 * Inserts the specified element at the tail of this queue 
 	 * if it is possible to do so immediately without exceeding the queue's capacity, 
-	 * returning true upon success and false if this queue is full. 
+	 * returning true upon success and false if this queue is full.
+	 * 
+	 * Also, if entry to add is invalid, entry is not insert this queue.   
 	 * 
 	 * @param entry the element to add
 	 * @return if the element was added to this queue, else false

@@ -19,13 +19,13 @@ import playground.pool.util.SpyObject;
 public class BasicIdleEntriesQueueTest {
 	
 	@Test(expected = NullPointerException.class)
-	public void add_追加エントリがnullの場合() {
+	public void offer_追加エントリがnullの場合() {
 		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class);
 		queue.offer(null);
 	}
 	
 	@Test
-	public void offer_maxIdleEntries数を超えない場合() {
+	public void offer_maxIdleEntries数を超えない_追加entryがvalidの場合() {
 		PoolConfig config = new PoolConfig();
 		config.setMaxIdleEntries(1);
 		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class, config);
@@ -35,6 +35,19 @@ public class BasicIdleEntriesQueueTest {
 		
 		assertTrue(offerSuccess);
 		assertTrue(entry.getObject().isValid());
+	}
+
+	@Test
+	public void offer_maxIdleEntries数を超えない_追加entryがinvalidの場合() throws Exception {
+		PoolConfig config = new PoolConfig();
+		config.setMaxIdleEntries(1);
+		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class, config);
+		BasicPoolEntry<SpyObject> entry = BasicPackageTestUtil.createPoolEntry(SpyObject.class);
+		
+		entry.invalidate();
+		boolean offerSuccess = queue.offer(entry);
+		
+		assertFalse(offerSuccess);
 	}
 
 	@Test

@@ -103,7 +103,7 @@ public class ValidatablePool<T> implements Pool<T> {
 	
 	@Override
 	public void returnEntry(PoolEntry<T> entry) throws NullPointerException {
-		if (entry == null) throw new NullPointerException();
+		if (entry == null) throw new NullPointerException("entry is null");
 
 		try {
 			entry = beforeReturnEntry(entry);

@@ -1,5 +1,6 @@
 package playground.pool.basic;
 
+import playground.pool.IdleEntriesQueue;
 import playground.pool.PoolConfig;
 import playground.pool.PoolEntryFactory;
 import playground.pool.PooledObjectFactory;
@@ -52,8 +53,12 @@ class BasicPackageTestUtil {
 	}
 	
 	static <T> BasicPool<T> createPool(Class<T> pooledClass, PoolConfig config) {
+		return createPool(pooledClass, config, createQueue(pooledClass, config));
+	}
+	
+	static <T> BasicPool<T> createPool(Class<T> pooledClass, PoolConfig config, IdleEntriesQueue<T> queue) {
 		return 
-			new BasicPool<T>(config, createQueue(pooledClass, config), createPoolEntryFactory(pooledClass));
+			new BasicPool<T>(config, queue, createPoolEntryFactory(pooledClass));
 	}
 	
 	static <T> PoolEntryFactory<T> createPoolEntryFactory(Class<T> pooledClass) {

@@ -88,17 +88,9 @@ public class BasicPool<T> implements Pool<T> {
 			throw e;
 		}
 		
-		try {
-			PoolEntry<T> entry = innerBorrowEntry(createNew);
-			if (entry == null) {
-				borrowingSemaphore.release();
-			}
-			return entry;
-		} catch (Exception e) {
-			borrowingSemaphore.release();
-			throw new PoolException(e);
-		}
+		return innerBorrowEntry(createNew);
 	}
+
 	
 	@Override
 	public PoolEntry<T> tryBorrowEntry() throws PoolException {
@@ -112,8 +104,16 @@ public class BasicPool<T> implements Pool<T> {
 			return null;
 		}
 		
+		return innerBorrowEntry(createNew);
+	}
+	
+	private PoolEntry<T> innerBorrowEntry(boolean createNew) throws PoolException {
 		try {
-			 PoolEntry<T> entry = innerBorrowEntry(createNew);
+			PoolEntry<T> entry = idleEntries.poll();
+			if (entry == null && createNew) {
+				entry = createIdleEntry();
+			}
+			
 			if (entry == null) {
 				borrowingSemaphore.release();
 			}
@@ -126,39 +126,12 @@ public class BasicPool<T> implements Pool<T> {
 
 	@Override
 	public void returnEntry(PoolEntry<T> entry) throws NullPointerException {
-		if (entry == null) throw new NullPointerException();
-		
-		try {
-			innerReturnEntry(entry);
-		} finally {
+		boolean offerSuccessful = idleEntries.offer(entry);
+		if (offerSuccessful) {
 			borrowingSemaphore.release();		
 		}
 	}
-	
-	private PoolEntry<T> innerBorrowEntry(boolean createNew) throws Exception {
-		PoolEntry<T> idleEntry = idleEntries.poll();
-		if (idleEntry == null) {
-			if (createNew) return createIdleEntry();
-		}
-		return idleEntry;
-	}
-			
-	private void innerReturnEntry(PoolEntry<T> entry) {
-		if (isAlreadyInvalid(entry)) {
-			// do nothing.
-			return;
-		}
-		idleEntries.offer(entry);
-	}
-	
-	private boolean isAlreadyInvalid(PoolEntry<T> entry) {
-		if (entry.getState().isValid()) {
-			return false;
-		} else {
-			return true;
-		}
-	}
-
+					
 	private PoolEntry<T> createIdleEntry() throws Exception {
 		return entryFactory.createPoolEntry();
 	}
@@ -168,5 +141,5 @@ public class BasicPool<T> implements Pool<T> {
 	 * */
 	int availablePermits() {
 		return borrowingSemaphore.availablePermits();
-	}
+	}	
 }

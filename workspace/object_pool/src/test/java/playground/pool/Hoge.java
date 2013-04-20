@@ -31,11 +31,7 @@ public class Hoge {
 
 		while(true) {
 			PoolEntry<String> entry1 = pool.borrowEntry();
-			entry1.getObject();
-			
 			PoolEntry<String> entry2 = pool.borrowEntry();
-			entry2.getObject();
-			
 			PoolEntry<String> entry3 = pool.borrowEntry();
 			PoolEntry<String> entry4 = pool.borrowEntry();
 			PoolEntry<String> entry5 = pool.borrowEntry();

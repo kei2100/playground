@@ -6,6 +6,12 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -230,7 +236,7 @@ public class BasicPoolTest {
 	}
 	
 	@Test
-	public void returnEntry_maxActiveEntriesを超えない_returnするentryがvalidの場合() throws Exception {
+	public void returnEntry_returnするentryがvalidの場合() throws Exception {
 		PoolConfig config = new PoolConfig();
 		config.setMaxActiveEntries(2);
 		config.setMaxIdleEntries(2);
@@ -248,7 +254,7 @@ public class BasicPoolTest {
 	}
 
 	@Test
-	public void returnEntry_maxActiveEntriesを超えない_returnするentryがinvalidの場合() throws Exception {
+	public void returnEntry_returnするentryがinvalidの場合() throws Exception {
 		PoolConfig config = new PoolConfig();
 		config.setMaxActiveEntries(2);
 		config.setMaxIdleEntries(2);
@@ -267,40 +273,7 @@ public class BasicPoolTest {
 	}
 
 	@Test
-	public void returnEntry_maxActiveEntriesを超える_returnするentryがvalidの場合() throws Exception {
-		PoolConfig config = new PoolConfig();
-		config.setMaxActiveEntries(2);
-		config.setMaxIdleEntries(2);
-		config.setInitialEntries(2);
-		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class, config);
-		BasicPool<SpyObject> pool = BasicPackageTestUtil.createPool(SpyObject.class, config, queue);
-		
-		BasicPoolEntry<SpyObject> exceededEntry = BasicPackageTestUtil.createPoolEntry(SpyObject.class);
-		pool.returnEntry(exceededEntry);
-		
-		assertEquals(2, pool.availablePermits());
-		assertEquals(2, queue.getIdleEntriesCount());
-	}
-
-	@Test
-	public void returnEntry_maxActiveEntriesを超える_returnするentryがinvalidの場合() throws Exception {
-		PoolConfig config = new PoolConfig();
-		config.setMaxActiveEntries(2);
-		config.setMaxIdleEntries(2);
-		config.setInitialEntries(2);
-		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class, config);
-		BasicPool<SpyObject> pool = BasicPackageTestUtil.createPool(SpyObject.class, config, queue);
-		
-		BasicPoolEntry<SpyObject> exceededEntry = BasicPackageTestUtil.createPoolEntry(SpyObject.class);
-		exceededEntry.invalidate();
-		pool.returnEntry(exceededEntry);
-		
-		assertEquals(2, pool.availablePermits());
-		assertEquals(2, queue.getIdleEntriesCount());
-	}
-	
-	@Test
-	public void returnEntry_nullをreturnした場合() throws Exception {
+	public void returnEntry_returnするentryがnullの場合() throws Exception {
 		PoolConfig config = new PoolConfig();
 		config.setMaxActiveEntries(2);
 		config.setMaxIdleEntries(2);
@@ -312,10 +285,48 @@ public class BasicPoolTest {
 		try {
 			pool.returnEntry(null);
 		} catch (NullPointerException e) {
-			assertEquals(1, pool.availablePermits());
+			assertEquals(2, pool.availablePermits());
 			assertEquals(1, queue.getIdleEntriesCount());
 			return;
 		}
 		fail();
+	}
+	
+	@Test
+	public void borrow_return_マルチスレッドで繰り返す() throws Exception {
+		PoolConfig config = new PoolConfig();
+		config.setMaxActiveEntries(5);
+		config.setMaxIdleEntries(5);
+		config.setInitialEntries(5);
+		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class, config);
+		final BasicPool<SpyObject> pool = BasicPackageTestUtil.createPool(SpyObject.class, config, queue);
+		
+		ExecutorService es = Executors.newFixedThreadPool(5);	// 5 is common num with maxIdleEntries.
+		List<Future<Void>> futures = new ArrayList<Future<Void>>();
+		
+		for (int i = 0; i < 50; i++) {
+			Future<Void> future = es.submit(new Callable<Void>() {
+				@Override
+				public Void call() throws Exception {
+					PoolEntry<SpyObject> entry = pool.tryBorrowEntry();
+					TimeUnit.MILLISECONDS.sleep(1);
+					pool.returnEntry(entry);
+					return null;
+				}
+			});
+			futures.add(future);
+		}
+		
+		try {
+			for (Future<Void> future : futures) {
+				// exceptionが発生していないこと
+				future.get();
+			}
+		} finally {
+			es.shutdown();
+		}
+		
+		assertEquals(5, pool.availablePermits());
+		assertEquals(5, queue.getIdleEntriesCount());
 	}
 }

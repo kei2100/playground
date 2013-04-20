@@ -87,7 +87,6 @@ public interface Pool<T> {
 	
 	/**
 	 * Get {@link PoolEntry} from this pool, only if can get the entry immediately.
-	 * 
 	 * <p>
 	 * If does not remain idle entry in this pool, 
 	 * determine whether to create a new entry by the value of parameter.   
@@ -99,7 +98,12 @@ public interface Pool<T> {
 	PoolEntry<T> tryBorrowEntry(boolean createNew) throws PoolException;
 	
 	/**
-	 * Return a {@link PoolEntry} to this pool.
+	 * Return {@link PoolEntry} to this pool.
+	 * <p>
+	 * Always, must return {@link PoolEntry} obtained from this pool.
+	 * If return {@link PoolEntry} that is instantiated by the external, 
+	 * state of this pool will be illegal.
+	 * </p>
 	 * @param entry for return
 	 * @throws NullPointerException if entry is null.
 	 * */

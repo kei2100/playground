@@ -130,9 +130,10 @@ public class BasicPool<T> implements Pool<T> {
 	
 	@Override
 	public void returnEntry(PoolEntry<T> entry) throws NullPointerException {
-		boolean offerSuccessful = idleEntries.offer(entry);
-		if (offerSuccessful) {
-			borrowingSemaphore.release();		
+		try{
+			idleEntries.offer(entry);
+		} finally { 
+			borrowingSemaphore.release();
 		}
 	}
 					

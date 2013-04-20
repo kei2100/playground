@@ -16,10 +16,13 @@ public interface IdleEntriesQueue<T> {
 	PoolEntry<T> poll();
 	
 	/**
-	 * Inserts the specified element at the tail of this queue.
+	 * Inserts the specified element at the tail of this queue 
+	 * if it is possible to do so immediately without exceeding the queue's capacity, 
+	 * returning true upon success and false if this queue is full. 
 	 * 
 	 * @param entry the element to add
+	 * @return if the element was added to this queue, else false
 	 * @throws NullPointerException if the specified element is null
 	 * */
-	void add(PoolEntry<T> entry) throws NullPointerException;
+	boolean offer(PoolEntry<T> entry) throws NullPointerException;
 }

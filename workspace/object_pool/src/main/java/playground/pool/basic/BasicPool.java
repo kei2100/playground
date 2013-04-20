@@ -35,7 +35,7 @@ public class BasicPool<T> implements Pool<T> {
 		// initialize idle entries
 		for (int i = 0; i < config.getInitialEntries(); i++) {
 			try {
-				idleEntries.add(createIdleEntry());
+				idleEntries.offer(createIdleEntry());
 			} catch (Exception e) {
 				logger.warn(PoolLoggerMarkerFactory.getMarker(), 
 						"Failed to create initial pool entry.", e);
@@ -148,7 +148,7 @@ public class BasicPool<T> implements Pool<T> {
 			// do nothing.
 			return;
 		}
-		idleEntries.add(entry);
+		idleEntries.offer(entry);
 	}
 	
 	private boolean isAlreadyInvalid(PoolEntry<T> entry) {
@@ -161,5 +161,12 @@ public class BasicPool<T> implements Pool<T> {
 
 	private PoolEntry<T> createIdleEntry() throws Exception {
 		return entryFactory.createPoolEntry();
+	}
+	
+	/*
+	 * This method is typically used for debugging and testing purposes.
+	 * */
+	int availablePermits() {
+		return borrowingSemaphore.availablePermits();
 	}
 }

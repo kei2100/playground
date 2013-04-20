@@ -82,7 +82,7 @@ class AsyncEnsureThread<T> {
 		public void run() {
 			try {
 				PoolEntry<T> entry = entryFactory.createPoolEntry();
-				queue.add(entry);
+				queue.offer(entry);
 			} catch (Exception e) {
 				logger.warn(PoolLoggerMarkerFactory.getMarker(), 
 						"Create PoolEntry throws Exception.", e);				

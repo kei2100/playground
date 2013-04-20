@@ -21,20 +21,21 @@ public class BasicIdleEntriesQueueTest {
 	@Test(expected = NullPointerException.class)
 	public void add_追加エントリがnullの場合() {
 		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class);
-		queue.add(null);
+		queue.offer(null);
 	}
 	
 	@Test
-	public void add_maxIdleEntries数を超えない場合() {
+	public void offer_maxIdleEntries数を超えない場合() {
 		PoolConfig config = new PoolConfig();
 		config.setMaxIdleEntries(1);
 		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class, config);
 		BasicPoolEntry<SpyObject> entry = BasicPackageTestUtil.createPoolEntry(SpyObject.class);
 		
-		queue.add(entry);
-		int actualCount = queue.getIdleEntriesCount();
+		boolean offerSuccess = queue.offer(entry);
+		int idleEntriesCount = queue.getIdleEntriesCount();
 		
-		assertEquals(1, actualCount);
+		assertTrue(offerSuccess);
+		assertEquals(1, idleEntriesCount);
 		assertTrue(entry.getObject().isValid());
 	}
 
@@ -46,10 +47,12 @@ public class BasicIdleEntriesQueueTest {
 		BasicPoolEntry<SpyObject> entry1 = BasicPackageTestUtil.createPoolEntry(SpyObject.class);
 		BasicPoolEntry<SpyObject> entry2 = BasicPackageTestUtil.createPoolEntry(SpyObject.class);
 		
-		queue.add(entry1);
-		queue.add(entry2);
+		boolean offerSuccess1 = queue.offer(entry1);
+		boolean offerSuccess2 = queue.offer(entry2);
 		int actualCount = queue.getIdleEntriesCount();
 		
+		assertTrue(offerSuccess1);
+		assertFalse(offerSuccess2);
 		assertEquals(1, actualCount);
 		assertTrue(entry1.getObject().isValid());
 		assertFalse(entry2.getObject().isValid());
@@ -70,8 +73,8 @@ public class BasicIdleEntriesQueueTest {
 	public void poll_アイドルエントリが空でない場合() {
 		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class);
 		
-		queue.add(BasicPackageTestUtil.createPoolEntry(SpyObject.class));
-		queue.add(BasicPackageTestUtil.createPoolEntry(SpyObject.class));
+		queue.offer(BasicPackageTestUtil.createPoolEntry(SpyObject.class));
+		queue.offer(BasicPackageTestUtil.createPoolEntry(SpyObject.class));
 		
 		PoolEntry<SpyObject> actualObject = queue.poll();
 		int actualCount = queue.getIdleEntriesCount();
@@ -96,7 +99,7 @@ public class BasicIdleEntriesQueueTest {
 				new Callable<PoolEntry<SpyObject>>() {
 					@Override
 					public PoolEntry<SpyObject> call() throws Exception {
-						queue.add(BasicPackageTestUtil.createPoolEntry(SpyObject.class));
+						queue.offer(BasicPackageTestUtil.createPoolEntry(SpyObject.class));
 						TimeUnit.MILLISECONDS.sleep(1);
 						return queue.poll();
 					}

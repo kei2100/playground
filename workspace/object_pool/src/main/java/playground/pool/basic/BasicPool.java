@@ -124,6 +124,10 @@ public class BasicPool<T> implements Pool<T> {
 		}
 	}
 
+	private PoolEntry<T> createIdleEntry() throws Exception {
+		return entryFactory.createPoolEntry();
+	}
+	
 	@Override
 	public void returnEntry(PoolEntry<T> entry) throws NullPointerException {
 		boolean offerSuccessful = idleEntries.offer(entry);
@@ -132,10 +136,6 @@ public class BasicPool<T> implements Pool<T> {
 		}
 	}
 					
-	private PoolEntry<T> createIdleEntry() throws Exception {
-		return entryFactory.createPoolEntry();
-	}
-	
 	/*
 	 * This method is typically used for debugging and testing purposes.
 	 * */

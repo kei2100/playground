@@ -32,15 +32,13 @@ public class BasicIdleEntriesQueueTest {
 		BasicPoolEntry<SpyObject> entry = BasicPackageTestUtil.createPoolEntry(SpyObject.class);
 		
 		boolean offerSuccess = queue.offer(entry);
-		int idleEntriesCount = queue.getIdleEntriesCount();
 		
 		assertTrue(offerSuccess);
-		assertEquals(1, idleEntriesCount);
 		assertTrue(entry.getObject().isValid());
 	}
 
 	@Test
-	public void add_maxIdleEntries数を超える場合() {
+	public void offer_maxIdleEntries数を超える場合() {
 		PoolConfig config = new PoolConfig();
 		config.setMaxIdleEntries(1);
 		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class, config);
@@ -49,11 +47,9 @@ public class BasicIdleEntriesQueueTest {
 		
 		boolean offerSuccess1 = queue.offer(entry1);
 		boolean offerSuccess2 = queue.offer(entry2);
-		int actualCount = queue.getIdleEntriesCount();
 		
 		assertTrue(offerSuccess1);
 		assertFalse(offerSuccess2);
-		assertEquals(1, actualCount);
 		assertTrue(entry1.getObject().isValid());
 		assertFalse(entry2.getObject().isValid());
 	}
@@ -63,10 +59,7 @@ public class BasicIdleEntriesQueueTest {
 		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class);
 		
 		PoolEntry<SpyObject> actualObject = queue.poll();
-		int actualCount = queue.getIdleEntriesCount();
-		
 		assertNull(actualObject);
-		assertEquals(0, actualCount);
 	}
 	
 	@Test
@@ -74,17 +67,13 @@ public class BasicIdleEntriesQueueTest {
 		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class);
 		
 		queue.offer(BasicPackageTestUtil.createPoolEntry(SpyObject.class));
-		queue.offer(BasicPackageTestUtil.createPoolEntry(SpyObject.class));
 		
 		PoolEntry<SpyObject> actualObject = queue.poll();
-		int actualCount = queue.getIdleEntriesCount();
-		
 		assertNotNull(actualObject);
-		assertEquals(1, actualCount);
 	}
 	
 	@Test
-	public void add_pool_マルチスレッドで繰り返す() throws Exception {
+	public void offer_pool_マルチスレッドで繰り返す() throws Exception {
 		PoolConfig config = new PoolConfig();
 		config.setMaxIdleEntries(5);	// 5 is common num with pool size.
 		
@@ -115,9 +104,6 @@ public class BasicIdleEntriesQueueTest {
 				boolean actualValid = entry.getObject().isValid();
 				assertTrue(actualValid);
 			}
-
-			int actualCount = queue.getIdleEntriesCount();
-			assertEquals(0, actualCount);
 		} finally {
 			es.shutdown();
 		}

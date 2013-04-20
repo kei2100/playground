@@ -1,7 +1,6 @@
 package playground.pool.basic;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,56 +10,36 @@ import playground.pool.PoolConfig;
 import playground.pool.PoolEntry;
 import playground.pool.util.PoolLoggerMarkerFactory;
 
-
 public class BasicIdleEntriesQueue<T> implements IdleEntriesQueue<T>{
 	private static final Logger logger = LoggerFactory.getLogger(BasicIdleEntriesQueue.class);
-	
-	private final PoolConfig config;
-	
-	private final ConcurrentLinkedQueue<PoolEntry<T>> idleEntries;
-	private final AtomicInteger idleEntriesCount;
+	private final ArrayBlockingQueue<PoolEntry<T>> idleEntries;
 
 	public BasicIdleEntriesQueue(PoolConfig config) {
-		this.config = config;
-		
-		idleEntries = new ConcurrentLinkedQueue<PoolEntry<T>>();
-		idleEntriesCount = new AtomicInteger(0);
+		idleEntries = new ArrayBlockingQueue<PoolEntry<T>>(config.getMaxIdleEntries());
 	}
 	
 	@Override
 	public PoolEntry<T> poll() {
 		PoolEntry<T> idle = idleEntries.poll();
-		if (idle != null) {
-			idleEntriesCount.decrementAndGet();
-		}
 		return idle;
 	}
 	
 	@Override
 	public boolean offer(PoolEntry<T> entry) throws NullPointerException {
-		if (entry == null) throw new NullPointerException("entry is null.");
-		
-		int idleCount = idleEntriesCount.incrementAndGet();
-
-		if (idleCount > config.getMaxIdleEntries()) {
-			idleEntriesCount.decrementAndGet();
-			try {
-				entry.invalidate();
-			} catch (Exception e) {
-				logger.warn(PoolLoggerMarkerFactory.getMarker(), 
-						"Invalidate PoolEntry throws Exception.", e);
-			}
-			return false;
-		} else {
-			idleEntries.add(entry);
-			return true;
+		boolean offerSuccessful = idleEntries.offer(entry);
+		if (!offerSuccessful) {
+			invalidateEntry(entry);
 		}
+		
+		return offerSuccessful;
 	}
-	
-	/*
-	 * This method is typically used for debugging and testing purposes.
-	 * */	
-	int getIdleEntriesCount() {
-		return idleEntriesCount.intValue();
-	}
+
+	private void invalidateEntry(PoolEntry<T> entry) {
+		try {
+			entry.invalidate();
+		} catch (Exception e) {
+			logger.warn(PoolLoggerMarkerFactory.getMarker(), 
+					"Invalidate PoolEntry throws Exception.", e);
+		}
+	}	
 }

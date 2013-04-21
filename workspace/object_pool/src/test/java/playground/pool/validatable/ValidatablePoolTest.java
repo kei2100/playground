@@ -24,8 +24,8 @@ import playground.pool.PoolEntryFactory;
 import playground.pool.PoolException;
 import playground.pool.ValidationConfig;
 import playground.pool.basic.BasicIdleEntriesQueue;
-import playground.pool.basic.BasicPackageTestUtil;
 import playground.pool.basic.BasicPool;
+import playground.pool.basic.PoolTestUtil;
 import playground.pool.util.SpyObject;
 import playground.pool.util.ThrowExceptionObjectFactory;
 
@@ -39,7 +39,7 @@ public class ValidatablePoolTest {
 		config.setMaxIdleEntries(2);
 		config.setInitialEntries(2);
 		
-		BasicPool<SpyObject> delegate = BasicPackageTestUtil.createPool(SpyObject.class, config);
+		BasicPool<SpyObject> delegate = PoolTestUtil.createPool(SpyObject.class, config);
 		ValidatablePool<SpyObject> pool = new ValidatablePool<SpyObject>(delegate, new ValidationConfig(), null);
 		
 		TimeUnit.MILLISECONDS.sleep(1);
@@ -62,7 +62,7 @@ public class ValidatablePoolTest {
 		config.setMaxIdleEntries(2);
 		config.setInitialEntries(1);
 		
-		BasicPool<SpyObject> delegate = BasicPackageTestUtil.createPool(SpyObject.class, config);
+		BasicPool<SpyObject> delegate = PoolTestUtil.createPool(SpyObject.class, config);
 		ValidatablePool<SpyObject> pool = new ValidatablePool<SpyObject>(delegate, new ValidationConfig(), null);
 		
 		TimeUnit.MILLISECONDS.sleep(1);
@@ -86,7 +86,7 @@ public class ValidatablePoolTest {
 		config.setMaxIdleEntries(2);
 		config.setInitialEntries(1);
 		
-		BasicPool<SpyObject> delegate = BasicPackageTestUtil.createPool(SpyObject.class, config);
+		BasicPool<SpyObject> delegate = PoolTestUtil.createPool(SpyObject.class, config);
 		ValidatablePool<SpyObject> pool = new ValidatablePool<SpyObject>(delegate, new ValidationConfig(), null);
 		
 		boolean notCreateNew = false;
@@ -107,10 +107,10 @@ public class ValidatablePoolTest {
 		config.setInitialEntries(1);
 
 		PoolEntryFactory<SpyObject> entryFactory = 
-				BasicPackageTestUtil.createPoolEntryFactory(
+				PoolTestUtil.createPoolEntryFactory(
 						SpyObject.class, new ThrowExceptionObjectFactory<SpyObject>(SpyObject.class, 2));
 		IdleEntriesQueue<SpyObject> queue = 
-				BasicPackageTestUtil.createQueue(SpyObject.class, config);
+				PoolTestUtil.createQueue(SpyObject.class, config);
 		
 		BasicPool<SpyObject> delegate = new BasicPool<SpyObject>(config, queue, entryFactory);
 		ValidatablePool<SpyObject> pool = new ValidatablePool<SpyObject>(delegate, new ValidationConfig(), null);
@@ -133,7 +133,7 @@ public class ValidatablePoolTest {
 		config.setMaxIdleEntries(2);
 		config.setInitialEntries(2);
 		
-		BasicPool<SpyObject> delegate = BasicPackageTestUtil.createPool(SpyObject.class, config);
+		BasicPool<SpyObject> delegate = PoolTestUtil.createPool(SpyObject.class, config);
 		ValidatablePool<SpyObject> pool = new ValidatablePool<SpyObject>(delegate, new ValidationConfig(), null);
 		
 		PoolEntry<SpyObject> entry1 = pool.borrowEntry(1, TimeUnit.MILLISECONDS);
@@ -153,7 +153,7 @@ public class ValidatablePoolTest {
 		config.setMaxIdleEntries(2);
 		config.setInitialEntries(2);
 		
-		BasicPool<SpyObject> delegate = BasicPackageTestUtil.createPool(SpyObject.class, config);
+		BasicPool<SpyObject> delegate = PoolTestUtil.createPool(SpyObject.class, config);
 		ValidatablePool<SpyObject> pool = new ValidatablePool<SpyObject>(delegate, new ValidationConfig(), null);
 		
 		TimeUnit.MILLISECONDS.sleep(1);
@@ -176,7 +176,7 @@ public class ValidatablePoolTest {
 		config.setMaxIdleEntries(2);
 		config.setInitialEntries(1);
 		
-		BasicPool<SpyObject> delegate = BasicPackageTestUtil.createPool(SpyObject.class, config);
+		BasicPool<SpyObject> delegate = PoolTestUtil.createPool(SpyObject.class, config);
 		ValidatablePool<SpyObject> pool = new ValidatablePool<SpyObject>(delegate, new ValidationConfig(), null);
 		
 		TimeUnit.MILLISECONDS.sleep(1);
@@ -200,7 +200,7 @@ public class ValidatablePoolTest {
 		config.setMaxIdleEntries(2);
 		config.setInitialEntries(1);
 		
-		BasicPool<SpyObject> delegate = BasicPackageTestUtil.createPool(SpyObject.class, config);
+		BasicPool<SpyObject> delegate = PoolTestUtil.createPool(SpyObject.class, config);
 		ValidatablePool<SpyObject> pool = new ValidatablePool<SpyObject>(delegate, new ValidationConfig(), null);
 		
 		boolean notCreateNew = false;
@@ -221,10 +221,10 @@ public class ValidatablePoolTest {
 		config.setInitialEntries(1);
 
 		PoolEntryFactory<SpyObject> entryFactory = 
-				BasicPackageTestUtil.createPoolEntryFactory(
+				PoolTestUtil.createPoolEntryFactory(
 						SpyObject.class, new ThrowExceptionObjectFactory<SpyObject>(SpyObject.class, 2));
 		IdleEntriesQueue<SpyObject> queue = 
-				BasicPackageTestUtil.createQueue(SpyObject.class, config);
+				PoolTestUtil.createQueue(SpyObject.class, config);
 
 		BasicPool<SpyObject> delegate = new BasicPool<SpyObject>(config, queue, entryFactory);
 		ValidatablePool<SpyObject> pool = new ValidatablePool<SpyObject>(delegate, new ValidationConfig(), null);
@@ -247,7 +247,7 @@ public class ValidatablePoolTest {
 		config.setMaxIdleEntries(2);
 		config.setInitialEntries(2);
 		
-		BasicPool<SpyObject> delegate = BasicPackageTestUtil.createPool(SpyObject.class, config);
+		BasicPool<SpyObject> delegate = PoolTestUtil.createPool(SpyObject.class, config);
 		ValidatablePool<SpyObject> pool = new ValidatablePool<SpyObject>(delegate, new ValidationConfig(), null);
 		
 		PoolEntry<SpyObject> entry1 = pool.tryBorrowEntry();
@@ -266,8 +266,8 @@ public class ValidatablePoolTest {
 		config.setMaxIdleEntries(2);
 		config.setInitialEntries(2);
 		
-		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class, config);
-		BasicPool<SpyObject> delegate = BasicPackageTestUtil.createPool(SpyObject.class, config, queue);
+		BasicIdleEntriesQueue<SpyObject> queue = PoolTestUtil.createQueue(SpyObject.class, config);
+		BasicPool<SpyObject> delegate = PoolTestUtil.createPool(SpyObject.class, config, queue);
 		ValidatablePool<SpyObject> pool = new ValidatablePool<SpyObject>(delegate, new ValidationConfig(), null);
 		
 		PoolEntry<SpyObject> entry = pool.borrowEntry();
@@ -286,8 +286,8 @@ public class ValidatablePoolTest {
 		config.setMaxIdleEntries(2);
 		config.setInitialEntries(2);
 		
-		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class, config);
-		BasicPool<SpyObject> delegate = BasicPackageTestUtil.createPool(SpyObject.class, config, queue);
+		BasicIdleEntriesQueue<SpyObject> queue = PoolTestUtil.createQueue(SpyObject.class, config);
+		BasicPool<SpyObject> delegate = PoolTestUtil.createPool(SpyObject.class, config, queue);
 		ValidatablePool<SpyObject> pool = new ValidatablePool<SpyObject>(delegate, new ValidationConfig(), null);
 		
 		PoolEntry<SpyObject> entry = pool.borrowEntry();
@@ -307,8 +307,8 @@ public class ValidatablePoolTest {
 		config.setMaxIdleEntries(2);
 		config.setInitialEntries(2);
 		
-		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class, config);
-		BasicPool<SpyObject> delegate = BasicPackageTestUtil.createPool(SpyObject.class, config, queue);
+		BasicIdleEntriesQueue<SpyObject> queue = PoolTestUtil.createQueue(SpyObject.class, config);
+		BasicPool<SpyObject> delegate = PoolTestUtil.createPool(SpyObject.class, config, queue);
 		ValidatablePool<SpyObject> pool = new ValidatablePool<SpyObject>(delegate, new ValidationConfig(), null);
 		
 		pool.borrowEntry();
@@ -329,8 +329,8 @@ public class ValidatablePoolTest {
 		config.setMaxIdleEntries(5);
 		config.setInitialEntries(5);
 		
-		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class, config);
-		BasicPool<SpyObject> delegate = BasicPackageTestUtil.createPool(SpyObject.class, config, queue);
+		BasicIdleEntriesQueue<SpyObject> queue = PoolTestUtil.createQueue(SpyObject.class, config);
+		BasicPool<SpyObject> delegate = PoolTestUtil.createPool(SpyObject.class, config, queue);
 		final ValidatablePool<SpyObject> pool = new ValidatablePool<SpyObject>(delegate, new ValidationConfig(), null);
 		
 		ExecutorService es = Executors.newFixedThreadPool(5);	// 5 is common num with maxIdleEntries.

@@ -5,11 +5,16 @@ import playground.pool.PoolConfig;
 import playground.pool.PoolEntryFactory;
 import playground.pool.PooledObjectFactory;
 import playground.pool.PooledObjectValidator;
+import playground.pool.basic.BasicIdleEntriesQueue;
+import playground.pool.basic.BasicPool;
+import playground.pool.basic.BasicPoolEntry;
+import playground.pool.basic.BasicPoolEntryFactory;
 import playground.pool.util.SpyObject;
 import playground.pool.util.SpyObjectFactory;
 import playground.pool.util.SpyObjectValidator;
+import playground.pool.util.ThrowExceptionValidator;
 
-public class BasicPackageTestUtil {
+public class PoolTestUtil {
 	
 	public static <T> BasicPoolEntry<T> createPoolEntry(Class<T> pooledClass) {
 		T pooledInstance = createPooledObject(pooledClass);
@@ -18,6 +23,11 @@ public class BasicPackageTestUtil {
 		return new BasicPoolEntry<T>(pooledInstance, validator);
 	}
 
+	public static <T> ThrowExceptionValidator<T> createThrowExceptionValidator(Class<T> pooledClass) {
+		PooledObjectValidator<T> validator = createPooledObjectValidator(pooledClass);
+		return new ThrowExceptionValidator<T>(validator);
+	}
+	
 	private static <T> T createPooledObject(Class<T> pooledClass) {
 		try {
 			return pooledClass.newInstance();
@@ -57,8 +67,11 @@ public class BasicPackageTestUtil {
 	}
 	
 	public static <T> BasicPool<T> createPool(Class<T> pooledClass, PoolConfig config, IdleEntriesQueue<T> queue) {
-		return 
-			new BasicPool<T>(config, queue, createPoolEntryFactory(pooledClass));
+		return createPool(config, queue, createPoolEntryFactory(pooledClass));
+	}
+
+	public static <T> BasicPool<T> createPool(PoolConfig config, IdleEntriesQueue<T> queue, PoolEntryFactory<T> factory) {
+		return new BasicPool<T>(config, queue, factory);
 	}
 	
 	public static <T> PoolEntryFactory<T> createPoolEntryFactory(Class<T> pooledClass) {

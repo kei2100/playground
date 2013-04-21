@@ -14,13 +14,14 @@ import org.junit.Test;
 
 import playground.pool.PoolConfig;
 import playground.pool.PoolEntry;
+import playground.pool.PooledObjectValidator;
 import playground.pool.util.SpyObject;
 
 public class BasicIdleEntriesQueueTest {
 	
 	@Test(expected = NullPointerException.class)
 	public void offer_追加エントリがnullの場合() {
-		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class);
+		BasicIdleEntriesQueue<SpyObject> queue = PoolTestUtil.createQueue(SpyObject.class);
 		queue.offer(null);
 	}
 	
@@ -28,21 +29,21 @@ public class BasicIdleEntriesQueueTest {
 	public void offer_maxIdleEntries数を超えない_追加entryがvalidの場合() {
 		PoolConfig config = new PoolConfig();
 		config.setMaxIdleEntries(1);
-		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class, config);
-		BasicPoolEntry<SpyObject> entry = BasicPackageTestUtil.createPoolEntry(SpyObject.class);
+		BasicIdleEntriesQueue<SpyObject> queue = PoolTestUtil.createQueue(SpyObject.class, config);
+		BasicPoolEntry<SpyObject> entry = PoolTestUtil.createPoolEntry(SpyObject.class);
 		
 		boolean offerSuccess = queue.offer(entry);
 		
 		assertTrue(offerSuccess);
-		assertTrue(entry.getObject().isValid());
+		assertTrue(entry.getState().isValid());
 	}
 
 	@Test
 	public void offer_maxIdleEntries数を超えない_追加entryがinvalidの場合() throws Exception {
 		PoolConfig config = new PoolConfig();
 		config.setMaxIdleEntries(1);
-		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class, config);
-		BasicPoolEntry<SpyObject> entry = BasicPackageTestUtil.createPoolEntry(SpyObject.class);
+		BasicIdleEntriesQueue<SpyObject> queue = PoolTestUtil.createQueue(SpyObject.class, config);
+		BasicPoolEntry<SpyObject> entry = PoolTestUtil.createPoolEntry(SpyObject.class);
 		
 		entry.invalidate();
 		boolean offerSuccess = queue.offer(entry);
@@ -54,22 +55,41 @@ public class BasicIdleEntriesQueueTest {
 	public void offer_maxIdleEntries数を超える場合() {
 		PoolConfig config = new PoolConfig();
 		config.setMaxIdleEntries(1);
-		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class, config);
-		BasicPoolEntry<SpyObject> entry1 = BasicPackageTestUtil.createPoolEntry(SpyObject.class);
-		BasicPoolEntry<SpyObject> entry2 = BasicPackageTestUtil.createPoolEntry(SpyObject.class);
+		BasicIdleEntriesQueue<SpyObject> queue = PoolTestUtil.createQueue(SpyObject.class, config);
+		BasicPoolEntry<SpyObject> entry1 = PoolTestUtil.createPoolEntry(SpyObject.class);
+		BasicPoolEntry<SpyObject> entry2 = PoolTestUtil.createPoolEntry(SpyObject.class);
 		
 		boolean offerSuccess1 = queue.offer(entry1);
 		boolean offerSuccess2 = queue.offer(entry2);
 		
 		assertTrue(offerSuccess1);
 		assertFalse(offerSuccess2);
-		assertTrue(entry1.getObject().isValid());
-		assertFalse(entry2.getObject().isValid());
+		assertTrue(entry1.getState().isValid());
+		assertFalse(entry2.getState().isValid());
+	}
+
+	@Test
+	public void offer_maxIdleEntries数を超える_invalidateで例外発生の場合() {
+		PoolConfig config = new PoolConfig();
+		config.setMaxIdleEntries(1);
+		BasicIdleEntriesQueue<SpyObject> queue = PoolTestUtil.createQueue(SpyObject.class, config);
+		PooledObjectValidator<SpyObject> validator = PoolTestUtil.createThrowExceptionValidator(SpyObject.class);
+		
+		BasicPoolEntry<SpyObject> entry1 = new BasicPoolEntry<SpyObject>(new SpyObject(), validator);
+		BasicPoolEntry<SpyObject> entry2 = new BasicPoolEntry<SpyObject>(new SpyObject(), validator);
+		
+		boolean offerSuccess1 = queue.offer(entry1);
+		boolean offerSuccess2 = queue.offer(entry2);
+		
+		assertTrue(offerSuccess1);
+		assertFalse(offerSuccess2);
+		assertTrue(entry1.getState().isValid());
+		assertFalse(entry2.getState().isValid());
 	}
 	
 	@Test
 	public void poll_アイドルエントリが空の場合() {
-		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class);
+		BasicIdleEntriesQueue<SpyObject> queue = PoolTestUtil.createQueue(SpyObject.class);
 		
 		PoolEntry<SpyObject> actualObject = queue.poll();
 		assertNull(actualObject);
@@ -77,9 +97,9 @@ public class BasicIdleEntriesQueueTest {
 	
 	@Test
 	public void poll_アイドルエントリが空でない場合() {
-		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class);
+		BasicIdleEntriesQueue<SpyObject> queue = PoolTestUtil.createQueue(SpyObject.class);
 		
-		queue.offer(BasicPackageTestUtil.createPoolEntry(SpyObject.class));
+		queue.offer(PoolTestUtil.createPoolEntry(SpyObject.class));
 		
 		PoolEntry<SpyObject> actualObject = queue.poll();
 		assertNotNull(actualObject);
@@ -91,7 +111,7 @@ public class BasicIdleEntriesQueueTest {
 		config.setMaxIdleEntries(5);	// 5 is common num with pool size.
 		
 		final BasicIdleEntriesQueue<SpyObject> queue =
-				BasicPackageTestUtil.createQueue(SpyObject.class, config);
+				PoolTestUtil.createQueue(SpyObject.class, config);
 		
 		ExecutorService es = Executors.newFixedThreadPool(5);	// 5 is common num with maxIdleEntries.
 		List<Future<PoolEntry<SpyObject>>> futures = new ArrayList<Future<PoolEntry<SpyObject>>>();
@@ -101,7 +121,7 @@ public class BasicIdleEntriesQueueTest {
 				new Callable<PoolEntry<SpyObject>>() {
 					@Override
 					public PoolEntry<SpyObject> call() throws Exception {
-						queue.offer(BasicPackageTestUtil.createPoolEntry(SpyObject.class));
+						queue.offer(PoolTestUtil.createPoolEntry(SpyObject.class));
 						TimeUnit.MILLISECONDS.sleep(1);
 						return queue.poll();
 					}

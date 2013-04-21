@@ -34,7 +34,7 @@ public class BasicPoolTest {
 		config.setMaxActiveEntries(2);
 		config.setMaxIdleEntries(2);
 		config.setInitialEntries(2);
-		BasicPool<SpyObject> pool = BasicPackageTestUtil.createPool(SpyObject.class, config);
+		BasicPool<SpyObject> pool = PoolTestUtil.createPool(SpyObject.class, config);
 		
 		TimeUnit.MILLISECONDS.sleep(1);
 		long beforeExec = System.currentTimeMillis();
@@ -55,7 +55,7 @@ public class BasicPoolTest {
 		config.setMaxActiveEntries(2);
 		config.setMaxIdleEntries(2);
 		config.setInitialEntries(1);
-		BasicPool<SpyObject> pool = BasicPackageTestUtil.createPool(SpyObject.class, config);
+		BasicPool<SpyObject> pool = PoolTestUtil.createPool(SpyObject.class, config);
 		
 		TimeUnit.MILLISECONDS.sleep(1);
 		long beforeExec = System.currentTimeMillis();
@@ -77,7 +77,7 @@ public class BasicPoolTest {
 		config.setMaxActiveEntries(2);
 		config.setMaxIdleEntries(2);
 		config.setInitialEntries(1);
-		BasicPool<SpyObject> pool = BasicPackageTestUtil.createPool(SpyObject.class, config);
+		BasicPool<SpyObject> pool = PoolTestUtil.createPool(SpyObject.class, config);
 		
 		boolean notCreateNew = false;
 		PoolEntry<SpyObject> entry1 = pool.borrowEntry(notCreateNew, 1, TimeUnit.MILLISECONDS);
@@ -97,10 +97,10 @@ public class BasicPoolTest {
 		config.setInitialEntries(1);
 
 		PoolEntryFactory<SpyObject> entryFactory = 
-				BasicPackageTestUtil.createPoolEntryFactory(
+				PoolTestUtil.createPoolEntryFactory(
 						SpyObject.class, new ThrowExceptionObjectFactory<SpyObject>(SpyObject.class, 2));
 		IdleEntriesQueue<SpyObject> queue = 
-				BasicPackageTestUtil.createQueue(SpyObject.class, config);
+				PoolTestUtil.createQueue(SpyObject.class, config);
 		
 		BasicPool<SpyObject> pool = new BasicPool<SpyObject>(config, queue, entryFactory);
 		assertNotNull(pool.borrowEntry(1, TimeUnit.MILLISECONDS));
@@ -120,7 +120,7 @@ public class BasicPoolTest {
 		config.setMaxActiveEntries(2);
 		config.setMaxIdleEntries(2);
 		config.setInitialEntries(2);
-		BasicPool<SpyObject> pool = BasicPackageTestUtil.createPool(SpyObject.class, config);
+		BasicPool<SpyObject> pool = PoolTestUtil.createPool(SpyObject.class, config);
 		
 		PoolEntry<SpyObject> entry1 = pool.borrowEntry(1, TimeUnit.MILLISECONDS);
 		PoolEntry<SpyObject> entry2 = pool.borrowEntry(1, TimeUnit.MILLISECONDS);
@@ -138,7 +138,7 @@ public class BasicPoolTest {
 		config.setMaxActiveEntries(2);
 		config.setMaxIdleEntries(2);
 		config.setInitialEntries(2);
-		BasicPool<SpyObject> pool = BasicPackageTestUtil.createPool(SpyObject.class, config);
+		BasicPool<SpyObject> pool = PoolTestUtil.createPool(SpyObject.class, config);
 		
 		TimeUnit.MILLISECONDS.sleep(1);
 		long beforeExec = System.currentTimeMillis();
@@ -159,7 +159,7 @@ public class BasicPoolTest {
 		config.setMaxActiveEntries(2);
 		config.setMaxIdleEntries(2);
 		config.setInitialEntries(1);
-		BasicPool<SpyObject> pool = BasicPackageTestUtil.createPool(SpyObject.class, config);
+		BasicPool<SpyObject> pool = PoolTestUtil.createPool(SpyObject.class, config);
 		
 		TimeUnit.MILLISECONDS.sleep(1);
 		long beforeExec = System.currentTimeMillis();
@@ -181,7 +181,7 @@ public class BasicPoolTest {
 		config.setMaxActiveEntries(2);
 		config.setMaxIdleEntries(2);
 		config.setInitialEntries(1);
-		BasicPool<SpyObject> pool = BasicPackageTestUtil.createPool(SpyObject.class, config);
+		BasicPool<SpyObject> pool = PoolTestUtil.createPool(SpyObject.class, config);
 		
 		boolean notCreateNew = false;
 		PoolEntry<SpyObject> entry1 = pool.tryBorrowEntry(notCreateNew);
@@ -201,10 +201,10 @@ public class BasicPoolTest {
 		config.setInitialEntries(1);
 
 		PoolEntryFactory<SpyObject> entryFactory = 
-				BasicPackageTestUtil.createPoolEntryFactory(
+				PoolTestUtil.createPoolEntryFactory(
 						SpyObject.class, new ThrowExceptionObjectFactory<SpyObject>(SpyObject.class, 2));
 		IdleEntriesQueue<SpyObject> queue = 
-				BasicPackageTestUtil.createQueue(SpyObject.class, config);
+				PoolTestUtil.createQueue(SpyObject.class, config);
 		
 		BasicPool<SpyObject> pool = new BasicPool<SpyObject>(config, queue, entryFactory);
 		assertNotNull(pool.tryBorrowEntry());
@@ -224,7 +224,7 @@ public class BasicPoolTest {
 		config.setMaxActiveEntries(2);
 		config.setMaxIdleEntries(2);
 		config.setInitialEntries(2);
-		BasicPool<SpyObject> pool = BasicPackageTestUtil.createPool(SpyObject.class, config);
+		BasicPool<SpyObject> pool = PoolTestUtil.createPool(SpyObject.class, config);
 		
 		PoolEntry<SpyObject> entry1 = pool.tryBorrowEntry();
 		PoolEntry<SpyObject> entry2 = pool.tryBorrowEntry();
@@ -241,8 +241,8 @@ public class BasicPoolTest {
 		config.setMaxActiveEntries(2);
 		config.setMaxIdleEntries(2);
 		config.setInitialEntries(2);
-		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class, config);
-		BasicPool<SpyObject> pool = BasicPackageTestUtil.createPool(SpyObject.class, config, queue);
+		BasicIdleEntriesQueue<SpyObject> queue = PoolTestUtil.createQueue(SpyObject.class, config);
+		BasicPool<SpyObject> pool = PoolTestUtil.createPool(SpyObject.class, config, queue);
 		
 		PoolEntry<SpyObject> entry = pool.borrowEntry();
 		assertEquals(1, pool.availablePermits());
@@ -259,8 +259,8 @@ public class BasicPoolTest {
 		config.setMaxActiveEntries(2);
 		config.setMaxIdleEntries(2);
 		config.setInitialEntries(2);
-		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class, config);
-		BasicPool<SpyObject> pool = BasicPackageTestUtil.createPool(SpyObject.class, config, queue);
+		BasicIdleEntriesQueue<SpyObject> queue = PoolTestUtil.createQueue(SpyObject.class, config);
+		BasicPool<SpyObject> pool = PoolTestUtil.createPool(SpyObject.class, config, queue);
 		
 		PoolEntry<SpyObject> entry = pool.borrowEntry();
 		assertEquals(1, pool.availablePermits());
@@ -278,8 +278,8 @@ public class BasicPoolTest {
 		config.setMaxActiveEntries(2);
 		config.setMaxIdleEntries(2);
 		config.setInitialEntries(2);
-		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class, config);
-		BasicPool<SpyObject> pool = BasicPackageTestUtil.createPool(SpyObject.class, config, queue);
+		BasicIdleEntriesQueue<SpyObject> queue = PoolTestUtil.createQueue(SpyObject.class, config);
+		BasicPool<SpyObject> pool = PoolTestUtil.createPool(SpyObject.class, config, queue);
 		
 		pool.borrowEntry();
 		try {
@@ -298,8 +298,8 @@ public class BasicPoolTest {
 		config.setMaxActiveEntries(5);
 		config.setMaxIdleEntries(5);
 		config.setInitialEntries(5);
-		BasicIdleEntriesQueue<SpyObject> queue = BasicPackageTestUtil.createQueue(SpyObject.class, config);
-		final BasicPool<SpyObject> pool = BasicPackageTestUtil.createPool(SpyObject.class, config, queue);
+		BasicIdleEntriesQueue<SpyObject> queue = PoolTestUtil.createQueue(SpyObject.class, config);
+		final BasicPool<SpyObject> pool = PoolTestUtil.createPool(SpyObject.class, config, queue);
 		
 		ExecutorService es = Executors.newFixedThreadPool(5);	// 5 is common num with maxIdleEntries.
 		List<Future<Void>> futures = new ArrayList<Future<Void>>();

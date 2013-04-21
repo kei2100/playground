@@ -12,7 +12,7 @@ public class BasicPoolEntryTest {
 	
 	@Test
 	public void validate_entryが既にinvalidの場合() throws Exception {
-		BasicPoolEntry<SpyObject> entry = BasicPackageTestUtil.createPoolEntry(SpyObject.class);
+		BasicPoolEntry<SpyObject> entry = PoolTestUtil.createPoolEntry(SpyObject.class);
 		long beforeTest = entry.getState().getLastValidatedAt();
 		
 		entry.invalidate();
@@ -28,7 +28,7 @@ public class BasicPoolEntryTest {
 	
 	@Test
 	public void validate_validatorでvalidになった場合() throws Exception {
-		BasicPoolEntry<SpyObject> entry = BasicPackageTestUtil.createPoolEntry(SpyObject.class);
+		BasicPoolEntry<SpyObject> entry = PoolTestUtil.createPoolEntry(SpyObject.class);
 		long beforeTest = entry.getState().getLastValidatedAt();
 		
 		TimeUnit.MILLISECONDS.sleep(1);

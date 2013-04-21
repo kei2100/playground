@@ -21,18 +21,18 @@ public class SpyObjectValidator implements PooledObjectValidator<SpyObject>{
 		validateCallCount.incrementAndGet();
 		
 		if (forceInvalid) {
-			spyObject.setValid(false);
+			spyObject.invalidate();
 			return false;
 		}
 		
-		spyObject.setValid(true);
+		spyObject.validate();
 		return true;
 	}
 
 	@Override
 	public void invalidate(SpyObject spyObject) throws Exception {
 		invalidateCallCount.incrementAndGet();
-		spyObject.setValid(false);
+		spyObject.invalidate();
 	}
 	
 	public int getValidateCallCount() {

@@ -33,7 +33,7 @@ public class ValidationConfig {
 	 * </p>
 	 * */
 	@Min(0)
-	private long testIntervalMillis = 0;
+	private long testIntervalMillis = TEST_INTERVAL_NOT_TAKEN;
 	
 	/**
 	 * Specify survival time of the object.
@@ -44,7 +44,7 @@ public class ValidationConfig {
 	 * </p> 
 	 * */
 	@Min(0)
-	private long maxAgeMillis = 0;
+	private long maxAgeMillis = MAX_AGE_UNLIMIT;
 	
 	/**
 	 * The number of threads to validation threads. 

@@ -22,6 +22,11 @@ public class PoolTestUtil {
 		
 		return new BasicPoolEntry<T>(pooledInstance, validator);
 	}
+	
+	public static <T> BasicPoolEntry<T> createPoolEntry(Class<T> pooledClass, PooledObjectValidator<T> validator) {
+		T pooledInstance = createPooledObject(pooledClass);
+		return new BasicPoolEntry<T>(pooledInstance, validator);
+	}
 
 	public static <T> ThrowExceptionValidator<T> createThrowExceptionValidator(Class<T> pooledClass) {
 		PooledObjectValidator<T> validator = createPooledObjectValidator(pooledClass);

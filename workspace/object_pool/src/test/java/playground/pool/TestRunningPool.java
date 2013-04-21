@@ -2,8 +2,7 @@ package playground.pool;
 
 import java.util.concurrent.TimeUnit;
 
-
-public class Hoge {
+public class TestRunningPool {
 	public static void main(String[] args) throws Exception {
 		PoolConfig poolConfig = new PoolConfig();
 		poolConfig.setMaxActiveEntries(10);
@@ -49,7 +48,8 @@ public class Hoge {
 	public static class TestObjectFactory implements PooledObjectFactory<String> {
 		@Override
 		public String createInstance() throws Exception {
-			System.out.println("created");
+			String threadName = Thread.currentThread().getName();
+			System.out.println(String.format("created		[%s]", threadName));
 			return "created";
 		}
 	}
@@ -57,15 +57,16 @@ public class Hoge {
 	public static class TestObjectValidator implements PooledObjectValidator<String> {
 		@Override
 		public boolean validate(String pooledObject) {
-			System.out.println("validated");
+			String threadName = Thread.currentThread().getName();
+			System.out.println(String.format("validated	[%s]", threadName));
 			return true;
 		}
 
 		@Override
 		public void invalidate(String pooledObject) throws Exception{
-			System.out.println("invalidated");
+			String threadName = Thread.currentThread().getName();
+			System.out.println(String.format("invalidated	[%s]", threadName));
 			pooledObject = null;
-			TimeUnit.MILLISECONDS.sleep(200);
 		}
 	}
 

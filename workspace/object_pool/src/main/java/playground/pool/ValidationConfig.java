@@ -82,7 +82,7 @@ public class ValidationConfig {
 	}
 	
 	public boolean isTestWithInterval() {
-		return testIntervalMillis == TEST_INTERVAL_NOT_TAKEN;
+		return testIntervalMillis != TEST_INTERVAL_NOT_TAKEN;
 	}
 	
 	public boolean isTestInBackground() {

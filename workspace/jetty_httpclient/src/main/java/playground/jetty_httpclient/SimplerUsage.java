@@ -42,12 +42,12 @@ public class SimplerUsage {
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
 			e.printStackTrace();
 		} finally {
-			// destroying HttpClient. Closing resources (pooling connection,
-			// threads, etc..)
-			httpClient.destroy();
-
 			// Dumping state of HttpClient.
 			System.out.println(httpClient.dump());
+
+			// stoping HttpClient. Closing resources (pooling connection,
+			// threads, etc..)
+			httpClient.stop();
 		}
 	}
 }

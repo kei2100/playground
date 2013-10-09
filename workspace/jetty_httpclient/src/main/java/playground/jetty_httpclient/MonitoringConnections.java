@@ -1,14 +1,14 @@
 package playground.jetty_httpclient;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.Destination;
+import org.eclipse.jetty.client.api.Response;
+import org.eclipse.jetty.client.api.Result;
 import org.eclipse.jetty.client.http.HttpDestinationOverHTTP;
 
 public class MonitoringConnections {
@@ -18,8 +18,8 @@ public class MonitoringConnections {
 	public static void main(String[] args) throws Exception {
 
 		// Create Executor for sending http request.
-		int httpRequestsConcurrency = 5;
-		ExecutorService httpRequestTaskExecutor = Executors.newFixedThreadPool(httpRequestsConcurrency);
+		int httpRequestsTaskConcurrency = 5;
+		ExecutorService httpRequestTaskExecutor = Executors.newFixedThreadPool(httpRequestsTaskConcurrency);
 	
 		// Create Executor for monitoring connection pool state.
 		ScheduledExecutorService monitorTaskExecutor = Executors.newScheduledThreadPool(1);
@@ -33,12 +33,12 @@ public class MonitoringConnections {
 			long after10sec = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(10);		
 			while (after10sec > System.currentTimeMillis()) {
 				httpRequestTaskExecutor.submit(new HttpRequestTask());
-				Thread.sleep(1000 / httpRequestsConcurrency);
+				Thread.sleep(300);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			httpRequestTaskExecutor.shutdownNow();
+			httpRequestTaskExecutor.shutdown();
 			monitorTaskExecutor.shutdown();
 			httpClient.stop();
 		}
@@ -49,14 +49,19 @@ public class MonitoringConnections {
 		public void run() {
 			if (httpClient == null) return;
 			if (!httpClient.isStarted()) return;
-
-			try {
-				System.out.println("Sending.");
-				httpClient.GET("http://www.google.com");
-				httpClient.GET("http://www.example.com");
-			} catch (InterruptedException | ExecutionException | TimeoutException e) {
-				e.printStackTrace();
-			}
+			
+			httpClient.newRequest("http://www.example.com").send(new Response.CompleteListener() {
+				@Override
+				public void onComplete(Result result) {
+					System.out.println("Request completed! (1)");
+				}
+			});
+			httpClient.newRequest("http://www.google.com").send(new Response.CompleteListener() {
+				@Override
+				public void onComplete(Result result) {
+					System.out.println("Request completed! (2)");
+				}
+			});
 		}
 	}
 	
